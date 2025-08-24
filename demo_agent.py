@@ -23,7 +23,6 @@ from livekit.agents import (
     cli,
     metrics,
 )
-from livekit.agents.voice.transcription.filters import filter_markdown
 from livekit.plugins import silero
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 from livekit.plugins import noise_cancellation
@@ -66,9 +65,9 @@ async def entrypoint(ctx: JobContext):
 
     session = AgentSession(
         vad=ctx.proc.userdata["vad"],
-        llm=get_llm,
-        stt=get_stt,
-        tts=get_tts,
+        llm=await get_llm(),
+        stt=await get_stt(),
+        tts=await get_tts(),
         turn_detection=MultilingualModel(),
     )
 
@@ -96,7 +95,6 @@ async def entrypoint(ctx: JobContext):
         ),
         room_output_options=RoomOutputOptions(
             transcription_enabled=True,
-            agent_transcription_filter=filter_markdown,
         ),
     )
 

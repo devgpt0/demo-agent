@@ -1,3 +1,25 @@
+#Set up commands
+
+```bash
+python -m venv venv
+```
+
+```bash
+source venv/Scripts/activate
+```
+
+```bash
+pip install -r requirements.txt
+```
+
+```bash
+python demo-agent download-files
+```
+
+```bash
+python demo-agent.py console
+```
+
 # Client Requirements – Vertex Media Cold Calling Agent
 
 ### 1. **Identity & Role**

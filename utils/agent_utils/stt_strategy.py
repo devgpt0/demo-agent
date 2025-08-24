@@ -15,7 +15,7 @@ ENV_STT_MAP = {
     "test": "deepgram-3",
     "dev": "deepgram-2",
     "client": "deepgram-3",
-    "local": "deepgram-2"
+    "local": "deepgram-3"
 }
 
 class STTStrategy(ABC):

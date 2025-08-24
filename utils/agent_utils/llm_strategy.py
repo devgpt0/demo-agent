@@ -2,10 +2,10 @@ import asyncio
 from typing import Optional
 from utils.config_utils.env_loader import get_env_var
 from utils.config_utils.config_loader import get_config
-from utils.monitoring_utils.logging import get_logger
 from livekit.plugins import openai, google
 import httpx
 import openai as openai_client
+from utils.monitoring_utils.logging import get_logger
 from abc import ABC, abstractmethod
 
 logger = get_logger("LLM-FACTORY")

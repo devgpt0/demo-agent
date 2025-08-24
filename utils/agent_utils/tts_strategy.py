@@ -15,7 +15,7 @@ ENV_TTS_MAP = {
     "test": "aws",
     "dev": "aws",
     "client": "aws",
-    "local": "elevenlabs"
+    "local": "aws"
 }
 
 class TTSStrategy(ABC):

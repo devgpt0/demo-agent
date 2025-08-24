@@ -4,18 +4,18 @@ from typing import Optional
 from utils.config_utils.env_loader import get_env_var
 from utils.config_utils.config_loader import get_config
 from utils.monitoring_utils.logging import get_logger
-from livekit.plugins import aws, google, openai, deepgram
+from livekit.plugins import aws, google, openai, deepgram ,elevenlabs
 from abc import ABC, abstractmethod
 
 logger = get_logger("TTS-FACTORY")
 
 # Environment to TTS mapping
 ENV_TTS_MAP = {
-    "prod": "aws",
+    "prod": "elevenlabs",
     "test": "aws",
     "dev": "aws",
     "client": "aws",
-    "local": "deepgram"
+    "local": "elevenlabs"
 }
 
 class TTSStrategy(ABC):
@@ -23,6 +23,19 @@ class TTSStrategy(ABC):
     async def create(self) -> Optional[object]:
         pass
 
+class ElevenLabsStrategy(TTSStrategy):
+    async def create(self) ->Optional[object]:
+        api_key = get_config("ELEVEN_LABS_API_KEY")
+        voice_id=get_config("ElEVEN_LABS_VOICE_ID")
+        model="eleven_multilingual_v2"
+        if not (api_key and voice_id):
+            logger.error("Missing ElevenLabs credentials or voice id")
+            return None
+        
+        logger.debug("Instanting elevenlabs TTS")
+        
+        return elevenlabs.TTS(api_key=api_key,voice_id=voice_id, model=model)
+        
 class AWSStrategy(TTSStrategy):
     async def create(self) -> Optional[object]:
         api_key = get_config("AWS_ACCESS_KEY_ID")
@@ -71,7 +84,8 @@ async def get_tts() -> Optional[object]:
     strategies = {
         "aws": AWSStrategy(),
         "google": GoogleStrategy(),
-        "deepgram": DeepgramStrategy()
+        "deepgram": DeepgramStrategy(),
+        "elevenlabs":ElevenLabsStrategy()
     }
 
     # Try selected strategy

@@ -1,1 +1,216 @@
 2025-08-24 13:40:13 | INFO     | interview-agent | demo_agent.py:112 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:06:03 | INFO     | interview-agent | demo_agent.py:112 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:07:45 | INFO     | interview-agent | demo_agent.py:112 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:17:13 | INFO     | interview-agent | demo_agent.py:112 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:17:21 | INFO     | interview-agent | demo_agent.py:61 | Silero VAD prewarmed
+2025-08-24 14:18:15 | INFO     | interview-agent | demo_agent.py:87 | Usage summary: UsageSummary(llm_prompt_tokens=0, llm_prompt_cached_tokens=0, llm_completion_tokens=0, tts_characters_count=0, tts_audio_duration=0.0, stt_audio_duration=0.0)
+2025-08-24 14:18:25 | INFO     | interview-agent | demo_agent.py:111 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:18:32 | INFO     | interview-agent | demo_agent.py:61 | Silero VAD prewarmed
+2025-08-24 14:19:37 | INFO     | interview-agent | demo_agent.py:87 | Usage summary: UsageSummary(llm_prompt_tokens=0, llm_prompt_cached_tokens=0, llm_completion_tokens=0, tts_characters_count=0, tts_audio_duration=0.0, stt_audio_duration=0.0)
+2025-08-24 14:20:24 | INFO     | interview-agent | demo_agent.py:111 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:20:31 | INFO     | interview-agent | demo_agent.py:61 | Silero VAD prewarmed
+2025-08-24 14:23:31 | INFO     | interview-agent | demo_agent.py:87 | Usage summary: UsageSummary(llm_prompt_tokens=0, llm_prompt_cached_tokens=0, llm_completion_tokens=0, tts_characters_count=0, tts_audio_duration=0.0, stt_audio_duration=0.0)
+2025-08-24 14:32:15 | INFO     | interview-agent | demo_agent.py:111 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:37:06 | INFO     | interview-agent | demo_agent.py:111 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:37:24 | INFO     | interview-agent | demo_agent.py:61 | Silero VAD prewarmed
+2025-08-24 14:40:43 | INFO     | interview-agent | demo_agent.py:87 | Usage summary: UsageSummary(llm_prompt_tokens=0, llm_prompt_cached_tokens=0, llm_completion_tokens=0, tts_characters_count=0, tts_audio_duration=0.0, stt_audio_duration=0.0)
+2025-08-24 14:41:02 | INFO     | interview-agent | demo_agent.py:110 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:41:22 | INFO     | interview-agent | demo_agent.py:60 | Silero VAD prewarmed
+2025-08-24 14:43:16 | INFO     | interview-agent | demo_agent.py:86 | Usage summary: UsageSummary(llm_prompt_tokens=0, llm_prompt_cached_tokens=0, llm_completion_tokens=0, tts_characters_count=0, tts_audio_duration=0.0, stt_audio_duration=0.0)
+2025-08-24 14:43:36 | INFO     | interview-agent | demo_agent.py:110 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:43:53 | INFO     | interview-agent | demo_agent.py:60 | Silero VAD prewarmed
+2025-08-24 14:43:53 | DEBUG    | LLM-FACTORY | llm_strategy.py:100 | Environment: client, Selected LLM: openai
+2025-08-24 14:43:53 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Attempting to instantiate LLM with strategy: openai
+2025-08-24 14:43:54 | DEBUG    | LLM-FACTORY | llm_strategy.py:47 | Instantiating openai LLM
+2025-08-24 14:43:54 | INFO     | LLM-FACTORY | llm_strategy.py:118 | Successfully instantiated LLM: openai
+2025-08-24 14:43:54 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: client, Selected STT: deepgram-3
+2025-08-24 14:43:54 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-3
+2025-08-24 14:43:54 | DEBUG    | STT-FACTORY | stt_strategy.py:38 | Instantiating deepgram-3 STT
+2025-08-24 14:43:54 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-3
+2025-08-24 14:43:54 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: client, Selected TTS: aws
+2025-08-24 14:43:54 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: aws
+2025-08-24 14:43:54 | DEBUG    | TTS-FACTORY | tts_strategy.py:39 | Instantiating aws TTS
+2025-08-24 14:43:54 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: aws
+2025-08-24 14:44:57 | INFO     | interview-agent | demo_agent.py:86 | Usage summary: UsageSummary(llm_prompt_tokens=236, llm_prompt_cached_tokens=0, llm_completion_tokens=50, tts_characters_count=217, tts_audio_duration=14.435999999999998, stt_audio_duration=61.09999999999992)
+2025-08-24 14:48:55 | INFO     | interview-agent | demo_agent.py:108 | Starting LiveKit Interview Agent Worker...
+2025-08-24 14:48:55 | INFO     | interview-agent | demo_agent.py:59 | Silero VAD prewarmed
+2025-08-24 14:48:55 | DEBUG    | LLM-FACTORY | llm_strategy.py:100 | Environment: client, Selected LLM: openai
+2025-08-24 14:48:55 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Attempting to instantiate LLM with strategy: openai
+2025-08-24 14:48:55 | DEBUG    | LLM-FACTORY | llm_strategy.py:47 | Instantiating openai LLM
+2025-08-24 14:48:55 | INFO     | LLM-FACTORY | llm_strategy.py:118 | Successfully instantiated LLM: openai
+2025-08-24 14:48:55 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: client, Selected STT: deepgram-3
+2025-08-24 14:48:55 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-3
+2025-08-24 14:48:56 | DEBUG    | STT-FACTORY | stt_strategy.py:38 | Instantiating deepgram-3 STT
+2025-08-24 14:48:56 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-3
+2025-08-24 14:48:56 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: client, Selected TTS: aws
+2025-08-24 14:48:56 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: aws
+2025-08-24 14:48:56 | DEBUG    | TTS-FACTORY | tts_strategy.py:39 | Instantiating aws TTS
+2025-08-24 14:48:56 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: aws
+2025-08-24 14:52:56 | INFO     | interview-agent | demo_agent.py:84 | Usage summary: UsageSummary(llm_prompt_tokens=1923, llm_prompt_cached_tokens=0, llm_completion_tokens=140, tts_characters_count=507, tts_audio_duration=33.912, stt_audio_duration=234.9999999999996)
+2025-08-24 15:01:25 | INFO     | interview-agent | demo_agent.py:108 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:01:26 | INFO     | interview-agent | demo_agent.py:59 | Silero VAD prewarmed
+2025-08-24 15:01:26 | DEBUG    | LLM-FACTORY | llm_strategy.py:97 | Selected LLM from env: azure-openai
+2025-08-24 15:01:26 | INFO     | LLM-FACTORY | llm_strategy.py:112 | Attempting to instantiate LLM with strategy: azure-openai
+2025-08-24 15:01:26 | DEBUG    | LLM-FACTORY | llm_strategy.py:90 | Instantiating azure-openai LLM
+2025-08-24 15:01:26 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Successfully instantiated LLM: azure-openai
+2025-08-24 15:01:26 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 15:01:26 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 15:01:26 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 15:01:26 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 15:01:26 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 15:01:26 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 15:01:26 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 15:01:26 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 15:07:24 | INFO     | interview-agent | demo_agent.py:84 | Usage summary: UsageSummary(llm_prompt_tokens=0, llm_prompt_cached_tokens=0, llm_completion_tokens=0, tts_characters_count=0, tts_audio_duration=0.0, stt_audio_duration=355.0999999999997)
+2025-08-24 15:07:36 | INFO     | interview-agent | demo_agent.py:108 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:07:37 | INFO     | interview-agent | demo_agent.py:59 | Silero VAD prewarmed
+2025-08-24 15:07:37 | DEBUG    | LLM-FACTORY | llm_strategy.py:96 | Selected LLM from env: azure-openai
+2025-08-24 15:07:37 | INFO     | LLM-FACTORY | llm_strategy.py:111 | Attempting to instantiate LLM with strategy: azure-openai
+2025-08-24 15:07:37 | DEBUG    | LLM-FACTORY | llm_strategy.py:89 | Instantiating azure-openai LLM
+2025-08-24 15:07:37 | INFO     | LLM-FACTORY | llm_strategy.py:114 | Successfully instantiated LLM: azure-openai
+2025-08-24 15:07:37 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 15:07:37 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 15:07:37 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 15:07:37 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 15:07:37 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 15:07:37 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 15:07:37 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 15:07:37 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 15:09:39 | INFO     | interview-agent | demo_agent.py:84 | Usage summary: UsageSummary(llm_prompt_tokens=0, llm_prompt_cached_tokens=0, llm_completion_tokens=0, tts_characters_count=0, tts_audio_duration=0.0, stt_audio_duration=120.49999999999973)
+2025-08-24 15:09:50 | INFO     | interview-agent | demo_agent.py:108 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:09:51 | INFO     | interview-agent | demo_agent.py:59 | Silero VAD prewarmed
+2025-08-24 15:10:51 | INFO     | interview-agent | demo_agent.py:108 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:10:51 | INFO     | interview-agent | demo_agent.py:59 | Silero VAD prewarmed
+2025-08-24 15:10:51 | DEBUG    | LLM-FACTORY | llm_strategy.py:92 | Selected LLM: azure-openai
+2025-08-24 15:10:51 | INFO     | LLM-FACTORY | llm_strategy.py:107 | Attempting to instantiate LLM with strategy: azure-openai
+2025-08-24 15:10:51 | DEBUG    | LLM-FACTORY | llm_strategy.py:86 | Instantiating azure-openai LLM
+2025-08-24 15:10:51 | INFO     | LLM-FACTORY | llm_strategy.py:110 | Successfully instantiated LLM: azure-openai
+2025-08-24 15:10:51 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 15:10:51 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 15:10:52 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 15:10:52 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 15:10:52 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 15:10:52 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 15:10:52 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 15:10:52 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 15:11:54 | INFO     | interview-agent | demo_agent.py:84 | Usage summary: UsageSummary(llm_prompt_tokens=0, llm_prompt_cached_tokens=0, llm_completion_tokens=0, tts_characters_count=0, tts_audio_duration=0.0, stt_audio_duration=59.99999999999989)
+2025-08-24 15:12:14 | INFO     | interview-agent | demo_agent.py:108 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:12:14 | INFO     | interview-agent | demo_agent.py:59 | Silero VAD prewarmed
+2025-08-24 15:12:14 | DEBUG    | LLM-FACTORY | llm_strategy.py:100 | Environment: local, Selected LLM: openai
+2025-08-24 15:12:14 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Attempting to instantiate LLM with strategy: openai
+2025-08-24 15:12:14 | DEBUG    | LLM-FACTORY | llm_strategy.py:47 | Instantiating openai LLM
+2025-08-24 15:12:14 | INFO     | LLM-FACTORY | llm_strategy.py:118 | Successfully instantiated LLM: openai
+2025-08-24 15:12:14 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 15:12:14 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 15:12:14 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 15:12:14 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 15:12:14 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 15:12:14 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 15:12:14 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 15:12:14 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 15:14:50 | INFO     | interview-agent | demo_agent.py:84 | Usage summary: UsageSummary(llm_prompt_tokens=496, llm_prompt_cached_tokens=0, llm_completion_tokens=76, tts_characters_count=310, tts_audio_duration=16.680208333333336, stt_audio_duration=149.99999999999972)
+2025-08-24 15:21:34 | INFO     | interview-agent | demo_agent.py:164 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:21:34 | INFO     | interview-agent | demo_agent.py:115 | Silero VAD prewarmed
+2025-08-24 15:21:34 | DEBUG    | LLM-FACTORY | llm_strategy.py:100 | Environment: local, Selected LLM: openai
+2025-08-24 15:21:34 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Attempting to instantiate LLM with strategy: openai
+2025-08-24 15:21:34 | DEBUG    | LLM-FACTORY | llm_strategy.py:47 | Instantiating openai LLM
+2025-08-24 15:21:34 | INFO     | LLM-FACTORY | llm_strategy.py:118 | Successfully instantiated LLM: openai
+2025-08-24 15:21:34 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 15:21:34 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 15:21:34 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 15:21:34 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 15:21:34 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 15:21:34 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 15:21:34 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 15:21:34 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 15:27:07 | INFO     | interview-agent | demo_agent.py:140 | Usage summary: UsageSummary(llm_prompt_tokens=19875, llm_prompt_cached_tokens=10880, llm_completion_tokens=895, tts_characters_count=2610, tts_audio_duration=145.8805833333332, stt_audio_duration=330.1499999999996)
+2025-08-24 15:32:28 | INFO     | interview-agent | demo_agent.py:174 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:32:28 | INFO     | interview-agent | demo_agent.py:125 | Silero VAD prewarmed
+2025-08-24 15:32:28 | DEBUG    | LLM-FACTORY | llm_strategy.py:100 | Environment: local, Selected LLM: openai
+2025-08-24 15:32:28 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Attempting to instantiate LLM with strategy: openai
+2025-08-24 15:32:28 | DEBUG    | LLM-FACTORY | llm_strategy.py:47 | Instantiating openai LLM
+2025-08-24 15:32:28 | INFO     | LLM-FACTORY | llm_strategy.py:118 | Successfully instantiated LLM: openai
+2025-08-24 15:32:28 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 15:32:28 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 15:32:28 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 15:32:28 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 15:32:28 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 15:32:28 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 15:32:28 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 15:32:28 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 15:34:32 | INFO     | interview-agent | demo_agent.py:150 | Usage summary: UsageSummary(llm_prompt_tokens=6502, llm_prompt_cached_tokens=1024, llm_completion_tokens=312, tts_characters_count=1225, tts_audio_duration=66.88020833333337, stt_audio_duration=120.09999999999972)
+2025-08-24 15:43:10 | INFO     | interview-agent | demo_agent.py:185 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:43:10 | INFO     | interview-agent | demo_agent.py:136 | Silero VAD prewarmed
+2025-08-24 15:43:10 | DEBUG    | LLM-FACTORY | llm_strategy.py:100 | Environment: local, Selected LLM: openai
+2025-08-24 15:43:10 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Attempting to instantiate LLM with strategy: openai
+2025-08-24 15:43:10 | DEBUG    | LLM-FACTORY | llm_strategy.py:47 | Instantiating openai LLM
+2025-08-24 15:43:10 | INFO     | LLM-FACTORY | llm_strategy.py:118 | Successfully instantiated LLM: openai
+2025-08-24 15:43:10 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 15:43:10 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 15:43:10 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 15:43:10 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 15:43:10 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 15:43:10 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 15:43:10 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 15:43:10 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 15:44:22 | INFO     | interview-agent | demo_agent.py:161 | Usage summary: UsageSummary(llm_prompt_tokens=3812, llm_prompt_cached_tokens=0, llm_completion_tokens=133, tts_characters_count=634, tts_audio_duration=35.48016666666663, stt_audio_duration=70.04999999999986)
+2025-08-24 15:53:40 | INFO     | interview-agent | demo_agent.py:188 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:53:40 | INFO     | interview-agent | demo_agent.py:139 | Silero VAD prewarmed
+2025-08-24 15:53:40 | DEBUG    | LLM-FACTORY | llm_strategy.py:100 | Environment: local, Selected LLM: openai
+2025-08-24 15:53:40 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Attempting to instantiate LLM with strategy: openai
+2025-08-24 15:53:40 | DEBUG    | LLM-FACTORY | llm_strategy.py:47 | Instantiating openai LLM
+2025-08-24 15:53:40 | INFO     | LLM-FACTORY | llm_strategy.py:118 | Successfully instantiated LLM: openai
+2025-08-24 15:53:40 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 15:53:40 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 15:53:40 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 15:53:40 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 15:53:40 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 15:53:40 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 15:53:40 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 15:53:40 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 15:56:40 | INFO     | interview-agent | demo_agent.py:164 | Usage summary: UsageSummary(llm_prompt_tokens=1062, llm_prompt_cached_tokens=0, llm_completion_tokens=8, tts_characters_count=0, tts_audio_duration=0.0, stt_audio_duration=175.3999999999997)
+2025-08-24 15:56:53 | INFO     | interview-agent | demo_agent.py:188 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:56:53 | INFO     | interview-agent | demo_agent.py:139 | Silero VAD prewarmed
+2025-08-24 15:56:54 | DEBUG    | LLM-FACTORY | llm_strategy.py:100 | Environment: local, Selected LLM: openai
+2025-08-24 15:56:54 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Attempting to instantiate LLM with strategy: openai
+2025-08-24 15:56:54 | DEBUG    | LLM-FACTORY | llm_strategy.py:47 | Instantiating openai LLM
+2025-08-24 15:56:54 | INFO     | LLM-FACTORY | llm_strategy.py:118 | Successfully instantiated LLM: openai
+2025-08-24 15:56:54 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 15:56:54 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 15:56:54 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 15:56:54 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 15:56:54 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 15:56:54 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 15:56:54 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 15:56:54 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 15:58:00 | INFO     | interview-agent | demo_agent.py:164 | Usage summary: UsageSummary(llm_prompt_tokens=2142, llm_prompt_cached_tokens=0, llm_completion_tokens=40, tts_characters_count=158, tts_audio_duration=8.760041666666668, stt_audio_duration=64.99999999999987)
+2025-08-24 15:58:14 | INFO     | interview-agent | demo_agent.py:188 | Starting LiveKit Interview Agent Worker...
+2025-08-24 15:58:14 | INFO     | interview-agent | demo_agent.py:139 | Silero VAD prewarmed
+2025-08-24 15:58:14 | DEBUG    | LLM-FACTORY | llm_strategy.py:100 | Environment: local, Selected LLM: openai
+2025-08-24 15:58:14 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Attempting to instantiate LLM with strategy: openai
+2025-08-24 15:58:14 | DEBUG    | LLM-FACTORY | llm_strategy.py:47 | Instantiating openai LLM
+2025-08-24 15:58:14 | INFO     | LLM-FACTORY | llm_strategy.py:118 | Successfully instantiated LLM: openai
+2025-08-24 15:58:14 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 15:58:14 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 15:58:14 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 15:58:14 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 15:58:14 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 15:58:14 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 15:58:14 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 15:58:14 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 16:05:28 | INFO     | interview-agent | demo_agent.py:164 | Usage summary: UsageSummary(llm_prompt_tokens=5896, llm_prompt_cached_tokens=5504, llm_completion_tokens=421, tts_characters_count=1931, tts_audio_duration=102.40016666666654, stt_audio_duration=430.69999999999953)
+2025-08-24 16:05:40 | INFO     | interview-agent | demo_agent.py:190 | Starting LiveKit Interview Agent Worker...
+2025-08-24 16:05:40 | INFO     | interview-agent | demo_agent.py:141 | Silero VAD prewarmed
+2025-08-24 16:05:40 | DEBUG    | LLM-FACTORY | llm_strategy.py:100 | Environment: local, Selected LLM: openai
+2025-08-24 16:05:40 | INFO     | LLM-FACTORY | llm_strategy.py:115 | Attempting to instantiate LLM with strategy: openai
+2025-08-24 16:05:40 | DEBUG    | LLM-FACTORY | llm_strategy.py:47 | Instantiating openai LLM
+2025-08-24 16:05:40 | INFO     | LLM-FACTORY | llm_strategy.py:118 | Successfully instantiated LLM: openai
+2025-08-24 16:05:40 | DEBUG    | STT-FACTORY | stt_strategy.py:91 | Environment: local, Selected STT: deepgram-2
+2025-08-24 16:05:40 | INFO     | STT-FACTORY | stt_strategy.py:106 | Attempting to instantiate STT with strategy: deepgram-2
+2025-08-24 16:05:40 | DEBUG    | STT-FACTORY | stt_strategy.py:85 | Instantiating deepgram-2 STT
+2025-08-24 16:05:40 | INFO     | STT-FACTORY | stt_strategy.py:109 | Successfully instantiated STT: deepgram-2
+2025-08-24 16:05:40 | DEBUG    | TTS-FACTORY | tts_strategy.py:69 | Environment: local, Selected TTS: deepgram
+2025-08-24 16:05:40 | INFO     | TTS-FACTORY | tts_strategy.py:83 | Attempting to instantiate TTS with strategy: deepgram
+2025-08-24 16:05:40 | DEBUG    | TTS-FACTORY | tts_strategy.py:63 | Instantiating deepgram TTS
+2025-08-24 16:05:40 | INFO     | TTS-FACTORY | tts_strategy.py:86 | Successfully instantiated TTS: deepgram
+2025-08-24 16:12:54 | INFO     | interview-agent | demo_agent.py:166 | Usage summary: UsageSummary(llm_prompt_tokens=41784, llm_prompt_cached_tokens=33664, llm_completion_tokens=942, tts_characters_count=3496, tts_audio_duration=211.72095833333321, stt_audio_duration=430.19999999999953)

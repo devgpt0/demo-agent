@@ -11,7 +11,7 @@ logger = get_logger("TTS-FACTORY")
 
 # Environment to TTS mapping
 ENV_TTS_MAP = {
-    "prod": "elevenlabs",
+    "prod": "aws",
     "test": "aws",
     "dev": "aws",
     "client": "aws",
@@ -45,9 +45,9 @@ class AWSStrategy(TTSStrategy):
             logger.error("Missing AWS credentials or region")
             return None
         params = {
-            "voice": "Raveena",
+            "voice": "Matthew",
             "speech_engine": "standard",
-            "language": "en-IN",
+            "language": "en-US",
         }
         logger.debug("Instantiating aws TTS")
         return aws.TTS(api_key=api_key, api_secret=api_secret, region=region, **params)

@@ -19,6 +19,18 @@ def parse_datetime(value: str) -> Optional[datetime]:
 
 
 
+#Save prospect
+def save_prospect_to_db(prospect: Prospect) -> None:
+    key = f"prospect:{prospect.id}"
+    data = prospect.to_dict()
+
+    safe_data = {
+        k: ("" if v is None or v == "null" else str(v)) for k, v in data.items()
+    }
+    redis.hset(key, values=safe_data)
+
+
+
 #Get Prospect
 async def get_prospect_from_db(prospect_id: str) -> Optional[Prospect]:
     key = f"prospect:{prospect_id}"

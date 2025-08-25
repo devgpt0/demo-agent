@@ -8,7 +8,8 @@ from utils.agent_utils.tts_strategy import get_tts
 from utils.monitoring_utils.logging import get_logger
 from utils.config_utils.env_loader import get_env_var
 from utils.config_utils.config_loader import get_config
-from repository.prospect_repository import get_prospect_from_db
+from utils.data_utils.date_utils import parse_datetime
+from repository.prospect_repository import get_prospect_from_db, save_prospect_to_db
 
 from livekit.agents import (
     NOT_GIVEN,
@@ -20,6 +21,8 @@ from livekit.agents import (
     RoomInputOptions,
     RoomOutputOptions,
     WorkerOptions,
+    RunContext,
+    function_tool,
     cli,
     metrics,
 )
@@ -36,11 +39,11 @@ ENV                   = get_env_var("ENV", default="dev")
 
 class DemoAgent(Agent):
     def __init__(self, prospect) -> None:
-        
+
         self.prospect = prospect 
         first_name = getattr(prospect, "first_name", None) or "Unknown"
-        logger.info(f"first_name------------------------>{first_name}")
-        
+        logger.info(f"first_name------------------------>{first_name}"
+                    )
         instructions = (
             "You are Caleb, a seasoned cold caller working for Vertex Media (https://www.vertexmedia.us).\n"
             "Your #1 job is to book the prospect into a meeting — without collecting their email you have failed.\n"
@@ -122,11 +125,62 @@ class DemoAgent(Agent):
             "2. Prospect confirms they’ll attend.\n"
             "3. Prospect acknowledges Vertex offers real sellers, not just random leads.\n"
         )
-        super().__init__(instructions=instructions)
-
+        super().__init__(
+            tools=[
+                function_tool(
+                    self._set_profile_field_func_for("appointment_date"),
+                    name="set_appointment_date",
+                    description="Call this function when user has booked appointement date."),
+                function_tool(
+                    self._set_profile_field_func_for("apointement_slot"),
+                    name="set_appointment_slot",
+                    description="Call this function when user has booked appointement slot."
+                ),
+                function_tool(
+                    self._set_profile_field_func_for("email"),
+                    name="set_email",
+                    description="Call this function when user has provided their email."
+                ),
+                function_tool(
+                    self._set_profile_field_func_for("timezone"),
+                    name="set_timezone",
+                    description="Call this function when user has provided their phone number."
+                ),
+                function_tool(
+                    self._save_to_db(),
+                    name="save_info_to_db",
+                    description="Call this function when success criteria is met."
+                )
+            ],
+            instructions= instructions
+            
+        )
+        
+        
     async def on_enter(self) -> None:
         self.session.generate_reply()
 
+    
+    def _set_profile_field_func_for(self, field: str):
+        
+        async def set_value(context: RunContext, value: str):
+            if field == "appointment_date":
+                setattr(self.prospect, field, parse_datetime(value))
+            else:
+                setattr(self.prospect, field, value)
+
+            save_prospect_to_db(self.prospect)
+            return
+        
+        return set_value
+        
+        
+    def _save_to_db(self):
+        async def save(context: RunContext):
+            return save_prospect_to_db(self.prospect)
+        return save
+
+       
 
 
 
@@ -148,6 +202,7 @@ async def entrypoint(ctx: JobContext):
     
     pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"
     prospect = await get_prospect_from_db(pid)
+    print(prospect)
 
     if prospect:
         logger.info(f"Fetched Prospect: {prospect.to_dict()}")

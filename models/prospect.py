@@ -2,6 +2,7 @@ import uuid
 from dataclasses import dataclass, field, asdict
 from typing import Optional, List
 from datetime import datetime
+from utils.data_utils.date_utils import format_datetime
 
 
 @dataclass
@@ -27,11 +28,12 @@ class Prospect:
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self):
-        """Convert to JSON-serializable dict"""
+        """Convert to JSON-serializable dict safely"""
         d = asdict(self)
-        d["appointment_date"] = (
-            self.appointment_date.isoformat() if self.appointment_date else None
-        )
-        d["created_at"] = self.created_at.isoformat()
-        d["updated_at"] = self.updated_at.isoformat()
+
+        # Ensure datetime fields are safe
+        d["appointment_date"] = format_datetime(self.appointment_date)
+        d["created_at"] = format_datetime(self.created_at)
+        d["updated_at"] = format_datetime(self.updated_at)
+
         return d

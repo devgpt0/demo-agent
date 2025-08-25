@@ -8,6 +8,7 @@ from utils.agent_utils.tts_strategy import get_tts
 from utils.monitoring_utils.logging import get_logger
 from utils.config_utils.env_loader import get_env_var
 from utils.config_utils.config_loader import get_config
+from utils.data_utils.date_utils import parse_datetime
 from repository.prospect_repository import get_prospect_from_db, save_prospect_to_db
 
 from livekit.agents import (
@@ -127,13 +128,13 @@ class DemoAgent(Agent):
         super().__init__(
             tools=[
                 function_tool(
-                    self._set_profile_field_func_for("first_name"),
-                    name="set_first_name",
-                    description="Call this function when user has provided their phone number."),
+                    self._set_profile_field_func_for("appointment_date"),
+                    name="set_appointment_date",
+                    description="Call this function when user has booked appointement date."),
                 function_tool(
-                    self._set_profile_field_func_for("last_name"),
-                    name="set_last_name",
-                    description="Call this function when user has provided their last name."
+                    self._set_profile_field_func_for("apointement_slot"),
+                    name="set_appointment_slot",
+                    description="Call this function when user has booked appointement slot."
                 ),
                 function_tool(
                     self._set_profile_field_func_for("email"),
@@ -141,8 +142,8 @@ class DemoAgent(Agent):
                     description="Call this function when user has provided their email."
                 ),
                 function_tool(
-                    self._set_profile_field_func_for("phone"),
-                    name="set_phone",
+                    self._set_profile_field_func_for("timezone"),
+                    name="set_timezone",
                     description="Call this function when user has provided their phone number."
                 ),
                 function_tool(
@@ -150,28 +151,33 @@ class DemoAgent(Agent):
                     name="save_info_to_db",
                     description="Call this function when success criteria is met."
                 )
-  
             ],
             instructions= instructions
             
         )
         
         
-    
-        
-
     async def on_enter(self) -> None:
         self.session.generate_reply()
 
-    def _set_profile_field_func_for(self, field: str):
-        async def set_value(context: RunContext, value: str):
-            setattr(self.prospect, field, value)
-            return 
-        return set_value
     
+    def _set_profile_field_func_for(self, field: str):
+        
+        async def set_value(context: RunContext, value: str):
+            if field == "appointment_date":
+                setattr(self.prospect, field, parse_datetime(value))
+            else:
+                setattr(self.prospect, field, value)
+
+            save_prospect_to_db(self.prospect)
+            return
+        
+        return set_value
+        
+        
     def _save_to_db(self):
         async def save(context: RunContext):
-            return await save_prospect_to_db(self.prospect)
+            return save_prospect_to_db(self.prospect)
         return save
 
        

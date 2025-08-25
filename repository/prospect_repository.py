@@ -28,9 +28,7 @@ def save_prospect_to_db(prospect: Prospect) -> None:
         k: ("" if v is None or v == "null" else str(v)) for k, v in data.items()
     }
     redis.hset(key, values=safe_data)
-    # # Upstash only supports hset(key, field, value) → loop through fields
-    # for field, value in safe_data.items():
-    #     redis.hset(key, field, value)
+
 
 
 #Get Prospect

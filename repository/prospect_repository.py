@@ -20,17 +20,17 @@ def parse_datetime(value: str) -> Optional[datetime]:
 
 
 #Save prospect
-async def save_prospect_to_db(prospect: Prospect) -> None:
+def save_prospect_to_db(prospect: Prospect) -> None:
     key = f"prospect:{prospect.id}"
     data = prospect.to_dict()
 
     safe_data = {
         k: ("" if v is None or v == "null" else str(v)) for k, v in data.items()
     }
-
-    # Upstash only supports hset(key, field, value) → loop through fields
-    for field, value in safe_data.items():
-        await redis.hset(key, field, value)
+    redis.hset(key, values=safe_data)
+    # # Upstash only supports hset(key, field, value) → loop through fields
+    # for field, value in safe_data.items():
+    #     redis.hset(key, field, value)
 
 
 #Get Prospect

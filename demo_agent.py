@@ -8,7 +8,7 @@ from utils.agent_utils.tts_strategy import get_tts
 from utils.monitoring_utils.logging import get_logger
 from utils.config_utils.env_loader import get_env_var
 from utils.config_utils.config_loader import get_config
-from repository.prospect_repository import get_prospect_from_db
+from repository.prospect_repository import get_prospect_from_db,update_prospect_in_db
 
 from livekit.agents import (
     NOT_GIVEN,
@@ -126,7 +126,21 @@ class DemoAgent(Agent):
 
     async def on_enter(self) -> None:
         self.session.generate_reply()
+    
+    async def on_email_captured(self, email: str):
+        self.prospect.email = email
+        self.prospect.status = "email_collected"
+        await update_prospect_in_db(self.prospect)
 
+    async def on_appointment_booked(self, date: str, slot: str):
+        self.prospect.appointment_date = date
+        self.prospect.appointment_slot = slot
+        self.prospect.status = "appointment_booked"
+        await update_prospect_in_db(self.prospect)
+
+    async def on_objection(self, objection: str):
+        self.prospect.objections.append(objection)
+        await update_prospect_in_db(self.prospect)
 
 
 
@@ -163,6 +177,14 @@ async def entrypoint(ctx: JobContext):
         tts=await get_tts()
     )
 
+    @session.on("transcription")
+    def _on_transcription(ev):
+        
+        agent = session.agent
+        agent.prospect.responses.append(ev.text)
+        asyncio.create_task(update_prospect_in_db(agent.prospect))
+        
+        
     @session.on("agent_false_interruption")
     def _on_false_interruption(ev):
         logger.info("False positive interruption detected, resuming.")

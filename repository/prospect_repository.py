@@ -1,66 +1,91 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 import json
 
 from models.prospect import Prospect
 from utils.monitoring_utils.logging import get_logger
-from utils.config_utils.db_config import redis 
+from utils.config_utils.db_config import redis
 
 logger = get_logger("prospect-repo")
 
 
-def parse_datetime(value: str) -> Optional[datetime]:
+def parse_datetime(value: Optional[str]) -> Optional[datetime]:
     if not value or value.lower() == "null":
         return None
     try:
         return datetime.fromisoformat(value)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Invalid datetime format '{value}': {e}")
         return None
 
 
-
-#Save prospect
-async def save_prospect_to_db(prospect: Prospect) -> None:
-    key = f"prospect:{prospect.id}"
-    data = prospect.to_dict()
-
-    safe_data = {
-        k: ("" if v is None or v == "null" else str(v)) for k, v in data.items()
-    }
-
-    # Upstash only supports hset(key, field, value) → loop through fields
-    for field, value in safe_data.items():
-        await redis.hset(key, field, value)
-
-
-#Get Prospect
+# ------------------------
+# Get Prospect
+# ------------------------
 async def get_prospect_from_db(prospect_id: str) -> Optional[Prospect]:
+    """
+    Fetch a prospect from Redis hash and map it to Prospect model.
+    """
     key = f"prospect:{prospect_id}"
-    data = redis.hgetall(key)
+    data: Dict[str, Any] = redis.hgetall(key)
 
     if not data:
+        logger.info(f"No prospect found in Redis for key={key}")
         return None
-
-    decoded = data  # async client already returns str values
 
     try:
         return Prospect(
             id=prospect_id,
-            first_name=decoded.get("first_name") or None,
-            last_name=decoded.get("last_name") or None,
-            phone=decoded.get("phone", ""),
-            timezone=decoded.get("timezone") or None,
-            status=decoded.get("status", "new"),
-            objections=json.loads(decoded.get("objections") or "[]"),
-            responses=json.loads(decoded.get("responses") or "[]"),
-            appointment_date=parse_datetime(decoded.get("appointment_date")),
-            appointment_slot=decoded.get("appointment_slot") or None,
-            email=decoded.get("email") or None,
-            created_at=parse_datetime(decoded.get("created_at")) or datetime.utcnow(),
-            updated_at=parse_datetime(decoded.get("updated_at")) or datetime.utcnow(),
+            first_name=data.get("first_name") or None,
+            last_name=data.get("last_name") or None,
+            phone=data.get("phone") or "",
+            timezone=data.get("timezone") or None,
+            status=data.get("status", "new"),
+            objections=json.loads(data.get("objections") or "[]"),
+            responses=json.loads(data.get("responses") or "[]"),
+            appointment_date=parse_datetime(data.get("appointment_date")),
+            appointment_slot=data.get("appointment_slot") or None,
+            email=data.get("email") or None,
+            created_at=parse_datetime(data.get("created_at")) or datetime.utcnow(),
+            updated_at=parse_datetime(data.get("updated_at")) or datetime.utcnow(),
         )
     except Exception as e:
-        import logging
-        logging.error(f"Error mapping prospect {prospect_id}: {e}")
+        logger.error(f"Error mapping prospect {prospect_id}: {e}")
         return None
 
+
+# ------------------------
+# Update Prospect
+# ------------------------
+async def update_prospect_in_db(prospect: Prospect) -> None:
+    """
+    Save Prospect back into Redis hash.
+    Arrays are JSON-encoded for storage.
+    """
+    key = f"prospect:{prospect.id}"
+    now = datetime.utcnow().isoformat()
+
+    fields = {
+        "first_name": prospect.first_name or "",
+        "last_name": prospect.last_name or "",
+        "phone": prospect.phone or "",
+        "timezone": prospect.timezone or "",
+        "status": prospect.status or "new",
+        "objections": json.dumps(prospect.objections or []),
+        "responses": json.dumps(prospect.responses or []),
+        "appointment_date": (
+            prospect.appointment_date.isoformat() if prospect.appointment_date else ""
+        ),
+        "appointment_slot": prospect.appointment_slot or "",
+        "email": prospect.email or "",
+        "created_at": (
+            prospect.created_at.isoformat() if prospect.created_at else now
+        ),
+        "updated_at": now,
+    }
+
+    try:
+        redis.hset(key, mapping=fields)
+        logger.info(f"Updated prospect {prospect.id} in Redis")
+    except Exception as e:
+        logger.error(f"Failed to update prospect {prospect.id} in Redis: {e}")

@@ -38,12 +38,15 @@ LIVEKIT_URL           = get_config("LIVEKIT_URL", default="wss://livekit.example
 ENV                   = get_env_var("ENV", default="dev")
 
 class DemoAgent(Agent):
+    
+    REQUIRED_FIELDS = {"appointment_date", "apointement_slot", "email", "timezone"}
+    
     def __init__(self, prospect) -> None:
 
         self.prospect = prospect 
+        self.collected_fields = set()
         first_name = getattr(prospect, "first_name", None) or "Unknown"
-        logger.info(f"first_name------------------------>{first_name}"
-                    )
+        logger.info(f"first_name------------------------>{first_name}")
         instructions = (
             "You are Caleb, a seasoned cold caller working for Vertex Media (https://www.vertexmedia.us).\n"
             "Your #1 job is to book the prospect into a meeting — without collecting their email you have failed.\n"
@@ -144,16 +147,10 @@ class DemoAgent(Agent):
                 function_tool(
                     self._set_profile_field_func_for("timezone"),
                     name="set_timezone",
-                    description="Call this function when user has provided their phone number."
-                ),
-                function_tool(
-                    self._save_to_db(),
-                    name="save_info_to_db",
-                    description="Call this function when success criteria is met."
+                    description="Call this function when user has provided their location or time."
                 )
             ],
             instructions= instructions
-            
         )
         
         
@@ -162,7 +159,6 @@ class DemoAgent(Agent):
 
     
     def _set_profile_field_func_for(self, field: str):
-        
         async def set_value(context: RunContext, value: str):
             if field == "appointment_date":
                 setattr(self.prospect, field, parse_datetime(value))
@@ -170,19 +166,32 @@ class DemoAgent(Agent):
                 setattr(self.prospect, field, value)
 
             save_prospect_to_db(self.prospect)
+
+            # Track completion
+            self.collected_fields.add(field)
+
+            # If all fields collected, confirm to user
+            if self.collected_fields >= self.REQUIRED_FIELDS:
+                confirmation_msg = (
+                    f"Great! I’ve noted everything down.\n"
+                    f"Here’s what I have:\n"
+                    f"- Date: {self.prospect.appointment_date}\n"
+                    f"- Slot: {self.prospect.apointement_slot}\n"
+                    f"- Timezone: {self.prospect.timezone}\n"
+                    f"- Email: {self.prospect.email}\n\n"
+                    f"Can you confirm these details are correct?"
+                )
+                # Generate confirmation reply
+                context.session.generate_reply(instructions=confirmation_msg)
+
             return
-        
         return set_value
-        
+
         
     def _save_to_db(self):
         async def save(context: RunContext):
             return save_prospect_to_db(self.prospect)
         return save
-
-       
-
-
 
 def prewarm(proc: JobProcess):
     proc.userdata["vad"] = silero.VAD.load(

@@ -281,13 +281,12 @@ async def entrypoint(ctx: JobContext):
         prospect = get_prospect_from_db(pid)
 
         schedule_appointment(
-            summary="Project Discussion",
-            description="Discuss project requirements and next steps.",
-        
-            start_time=f"{prospect.appointment_date} {prospect.appointment_time}",  # YYYY-MM-DD HH:MM
-            attendee_email=prospect.email,
+            summary="Vertex Media Discovery Call",
+            description="Intro call to show how Vertex helps realtors with consistent seller leads.",
+            start_time="2025-08-30 10:00",   # Prospect’s confirmed slot
+            attendee_email=prospect_email,
             duration=30,
-            timezone=prospect.timezone
+            timezone=prospect_timezone
         )
 
     ctx.add_shutdown_callback(cleanup)

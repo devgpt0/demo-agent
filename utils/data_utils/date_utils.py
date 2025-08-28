@@ -75,9 +75,8 @@ def get_next_two_dates():
     today = datetime.now()
     # skip today, start from tomorrow
     first_date = today + timedelta(days=1)
-    second_date = today + timedelta(days=3)  # space them apart
+    second_date = today + timedelta(days=3)  
     
-    # format nicely: "Tuesday, September 2nd"
     def format_date(d):
         return d.strftime("%A, %B %d").replace(" 0", " ")
     

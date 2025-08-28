@@ -6,11 +6,14 @@ from dateutil import parser
 
 def parse_time_str(value: Optional[str]) -> Optional[str]:
     """
-    Parse and normalize appointment time into 'HH:MM AM/PM' format.
-    Accepts variations like:
+
+    Parse and normalize appointment time into 24-hour 'HH:MM' format.
+    Supports:
         - '3 am'
         - '03:00 pm'
         - '11:30Am'
+        - '14:00' (24-hour format)
+
     Returns None if invalid.
     """
     if not value:
@@ -18,17 +21,14 @@ def parse_time_str(value: Optional[str]) -> Optional[str]:
 
     v = value.strip().upper().replace(" ", "")
 
-    try:
-        # Try "HH:MMAM/PM"
-        parsed_time = datetime.strptime(v, "%I:%M%p")
-    except ValueError:
+    for fmt in ["%I:%M%p", "%I%p", "%H:%M"]:  # try 12h+AM/PM and 24h
         try:
-            # Try "HAM/PM"
-            parsed_time = datetime.strptime(v, "%I%p")
+            parsed_time = datetime.strptime(v, fmt)
+            return parsed_time.strftime("%H:%M")  # always save in 24-hour format
         except ValueError:
-            return None  
+            continue
 
-    return parsed_time.strftime("%I:%M %p")
+    return None
 
 
 def format_time_str(t: Optional[str]) -> Optional[str]:

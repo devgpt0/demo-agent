@@ -10,6 +10,7 @@ from utils.config_utils.config_loader import get_config
 from utils.data_utils.date_utils import parse_date,get_next_two_dates
 from utils.data_utils.time_utils import parse_time_str,human_time
 from repository.prospect_repository import get_prospect_from_db, save_prospect_to_db
+from book_appointment import schedule_appointment
 from livekit.agents import (
     NOT_GIVEN,
     Agent,
@@ -27,6 +28,7 @@ from livekit.agents import (
 )
 from livekit.plugins import silero
 from livekit.plugins import noise_cancellation
+import datetime
 
 logger = get_logger("interview-agent")
 
@@ -157,8 +159,11 @@ class DemoAgent(Agent):
                 function_tool(
                     self._set_profile_field_func_for("timezone"),
                     name="set_timezone",
-                    description="Call this function when user has provided their location or time."
-                )
+
+                    description="Call this function when user has provided their location or timezone."
+                ),
+               
+
             ],
             instructions= instructions
         )
@@ -190,8 +195,8 @@ class DemoAgent(Agent):
             # If all required fields collected, confirm with user
             if self.collected_fields >= self.REQUIRED_FIELDS:
                 confirmation_msg = (
-                    f"Great! I’ve noted everything down.\n"
-                    f"Here’s what I have:\n"
+                    f"Great! I've noted everything down.\n"
+                    f"Here's what I have:\n"
                     f"- Date: {self.prospect.appointment_date}\n"
                     f"- Time: {human_time(self.prospect.appointment_time)}\n"
                     f"- Timezone: {self.prospect.timezone}\n"
@@ -270,6 +275,22 @@ async def entrypoint(ctx: JobContext):
             transcription_enabled=True,
         ),
     )
+
+    async def cleanup():
+        pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"
+        prospect = get_prospect_from_db(pid)
+
+        schedule_appointment(
+            summary="Project Discussion",
+            description="Discuss project requirements and next steps.",
+        
+            start_time=f"{prospect.appointment_date} {prospect.appointment_time}",  # YYYY-MM-DD HH:MM
+            attendee_email=prospect.email,
+            duration=30,
+            timezone=prospect.timezone
+        )
+
+    ctx.add_shutdown_callback(cleanup)
 
 def custom_load_func(worker):
     try:

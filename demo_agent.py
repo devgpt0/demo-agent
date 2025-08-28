@@ -11,7 +11,6 @@ from utils.data_utils.date_utils import parse_date,get_next_two_dates
 from utils.data_utils.time_utils import parse_time_str,human_time
 from repository.prospect_repository import get_prospect_from_db, save_prospect_to_db
 from book_appointment import schedule_appointment
-
 from livekit.agents import (
     NOT_GIVEN,
     Agent,
@@ -160,9 +159,11 @@ class DemoAgent(Agent):
                 function_tool(
                     self._set_profile_field_func_for("timezone"),
                     name="set_timezone",
+
                     description="Call this function when user has provided their location or timezone."
                 ),
                
+
             ],
             instructions= instructions
         )

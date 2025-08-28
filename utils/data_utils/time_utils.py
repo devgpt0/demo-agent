@@ -6,12 +6,14 @@ from dateutil import parser
 
 def parse_time_str(value: Optional[str]) -> Optional[str]:
     """
+
     Parse and normalize appointment time into 24-hour 'HH:MM' format.
     Supports:
         - '3 am'
         - '03:00 pm'
         - '11:30Am'
         - '14:00' (24-hour format)
+
     Returns None if invalid.
     """
     if not value:
@@ -27,6 +29,7 @@ def parse_time_str(value: Optional[str]) -> Optional[str]:
             continue
 
     return None
+
 
 def format_time_str(t: Optional[str]) -> Optional[str]:
     """Ensure time is displayed as 'HH:MM AM/PM'."""

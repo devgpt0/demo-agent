@@ -127,5 +127,5 @@ if __name__ == '__main__':
     summary = "Project Discussion"
     description = "Discuss project requirements and next steps."
     start_time = "2024-07-01 15:00"  # YYYY-MM-DD HH:MM
-    attendee_email = "abc@gmail.com"
+    attendee_email = "bootcoding@gmail.com"
     schedule_appointment(summary, description, start_time, attendee_email,duration=30, timezone="Asia/Kolkata")

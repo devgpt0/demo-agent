@@ -96,8 +96,9 @@ class DemoAgent(Agent):
             "   → Ask: 'What’s the best email for the invite?'\n"
             "   → Do not interrupt; allow them to finish.\n"
             "   → If unclear: 'Can you spell that out for me so I don’t make a mistake?'\n"
+            "   ->If there are numbers in the email id ,write them as numbers"
             "   → Normalize email: lowercase, remove spaces, ensure '@' and domain, fix common typos.\n"
-            "   → Read back corrected email: 'So just to confirm, that’s j.smith@gmail.com — is that 100% correct?'\n"
+            "   → Read back corrected email in slowly letter by letter.'\n"
             "   → Do not continue until they confirm.\n"
             "   → Without confirmed valid email = failed booking.\n\n"
 

@@ -160,16 +160,47 @@ class DemoAgent(Agent):
                 function_tool(
                     self._set_profile_field_func_for("timezone"),
                     name="set_timezone",
-
                     description="Call this function when user has provided their location or timezone."
                 ),
-               
-
+                function_tool(
+                    self._schedule_meeting,
+                    name = "schedule_meeting",
+                    description="Schedules the confirmed appointment into the calendar after all details are collected."
+                )
             ],
             instructions= instructions
         )
         
+    async def _schedule_meeting(self,context:RunContext):
+        """Schedule the once all required fields are confirmed"""
+        if not(self.collected_fields>=self.REQUIRED_FIELDS):
+           await context.session.generate_reply(
+               instructions="I don't have all details yet.Please confirm date, time, timezone, and email before I schedule."
+           )
+           return
         
+        try:
+            pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"
+            prospect = get_prospect_from_db(pid)
+            schedule_appointment(
+                summary="Vertex Media Discovery Call",
+                description="Intro call to show how Vertex helps realtors with consistent seller leads.",
+                start_time= f"{prospect.appointment_date} {prospect.appointment_time}",
+                attendee_email=prospect.email,
+                duration=30,
+                timezone=prospect.timezone
+            )
+            
+            await context.session.generate_reply(
+                instructions="You meeting has been scheduled! You'll recieve a confirmation email soon"
+            )
+        except Exception as e:
+            logger.error(f"Failed to schedule appointment:{e}")
+            await context.session.generate_reply(
+                instructions="Something went wrong while scheduling the meeting can we try again"
+            )
+        
+    
     async def on_enter(self) -> None:
         self.session.generate_reply()
 
@@ -205,7 +236,9 @@ class DemoAgent(Agent):
                     f"Can you confirm these details are correct?"
                 )
                 await context.session.generate_reply(instructions=confirmation_msg)
-
+                await context.session.generate_reply(
+                    instructions="Once confirmed, call the `schedule_meeting` tool to finalize the booking."
+                )
             return
         return set_value
 
@@ -276,19 +309,6 @@ async def entrypoint(ctx: JobContext):
             transcription_enabled=True,
         ),
     )
-
-    async def cleanup():
-        pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"
-        prospect = get_prospect_from_db(pid)
-
-        schedule_appointment(
-            summary="Vertex Media Discovery Call",
-            description="Intro call to show how Vertex helps realtors with consistent seller leads.",
-            start_time="2025-08-30 10:00",   # Prospect’s confirmed slot
-            attendee_email=prospect_email,
-            duration=30,
-            timezone=prospect_timezone
-        )
 
     ctx.add_shutdown_callback(cleanup)
 

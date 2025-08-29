@@ -85,7 +85,7 @@ class DemoAgent(Agent):
 
             "# Booking Rules\n"
             "- After they say yes, immediately pivot:\n"
-            "   → 'Perfect — let’s grab 15 minutes so we can show you how it works. What time zone are you in?'\n"
+            "   → 'Perfect — let’s grab 5 minutes so we can show you how it works. What time zone are you in?'\n"
             "- Must always ask for their time zone first.\n"
             "- If unknown, ask for city/state. Deduce timezone if possible.\n"
             "- Never book today — start from the next business day.\n"
@@ -98,7 +98,7 @@ class DemoAgent(Agent):
             "   → If unclear: 'Can you spell that out for me so I don’t make a mistake?'\n"
             "   ->If there are numbers in the email id ,write them as numbers"
             "   → Normalize email: lowercase, remove spaces, ensure '@' and domain, fix common typos.\n"
-            "   → Read back corrected email in slowly letter by letter.'\n"
+            "   → Read back corrected email very slowly letter by letter.'\n"
             "   → Do not continue until they confirm.\n"
             "   → Without confirmed valid email = failed booking.\n\n"
 

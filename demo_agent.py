@@ -11,6 +11,7 @@ from utils.data_utils.date_utils import parse_date,get_next_two_dates
 from utils.data_utils.time_utils import parse_time_str,human_time
 from repository.prospect_repository import get_prospect_from_db, save_prospect_to_db
 from book_appointment import schedule_appointment
+from livekit import rtc, api
 from livekit.agents import (
     NOT_GIVEN,
     Agent,
@@ -22,6 +23,7 @@ from livekit.agents import (
     RoomOutputOptions,
     WorkerOptions,
     RunContext,
+    get_job_context,
     function_tool,
     cli,
     metrics,
@@ -37,6 +39,7 @@ LIVEKIT_API_KEY       = get_config("LIVEKIT_API_KEY")
 LIVEKIT_API_SECRET    = get_config("LIVEKIT_API_SECRET")
 LIVEKIT_URL           = get_config("LIVEKIT_URL", default="wss://livekit.example.com", required=False)
 ENV                   = get_env_var("ENV", default="dev")
+OUTBOUND_TRUNK_ID     = get_env_var("SIP_OUTBOUND_TRUNK_ID")
 
 class DemoAgent(Agent):
     
@@ -169,7 +172,40 @@ class DemoAgent(Agent):
             instructions= instructions
         )
         
+    
+    def set_participant(self, participant: rtc.RemoteParticipant):
+        self.participant = participant
         
+    async def hangup(self):
+        """Helper function to hung up the call by deleting the room"""
+        job_ctx = get_job_context()
+        
+        await job_ctx.api.room.delete_room(
+            api.DeleteRoomRequest(
+                room = job_ctx.room.name
+            )
+        )
+        
+    
+    
+    @function_tool()
+    async def end_call(self, ctx:RunContext):
+        """Called when the user wants to end the call"""
+        logger.info(f"ending the call for {self.participant.identity}")
+        
+        current_speech = ctx.session.current_speech
+        if current_speech:
+            await current_speech.wait_for_playout()
+            
+        await self.hangup()
+        
+    
+    @function_tool()
+    async def detected_answering_machine(self, ctx:RunContext):
+        """Called when the call reaches voicemail.Use this tool after you hear the voice mail greeting"""
+        logger.info(f"detected answering machine for {self.participant.identity}")
+        await self.hangup()
+    
     async def on_enter(self) -> None:
         self.session.generate_reply()
 
@@ -229,19 +265,24 @@ def prewarm(proc: JobProcess):
     logger.info("Silero VAD prewarmed")
 
 async def entrypoint(ctx: JobContext):
+    logger.info(f"Connecting to room {ctx.room.name}")
     ctx.log_context_fields = {"room": ctx.room.name}
+    await ctx.connect()
+    
     usage_collector = metrics.UsageCollector()
     
     pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"
     prospect = get_prospect_from_db(pid)
-    print(prospect)
+    logger.info(prospect)
+    
+    participant_identity=prospect.phone
 
     if prospect:
         logger.info(f"Fetched Prospect: {prospect.to_dict()}")
     else:
         logger.warning("Prospect not found.")
         
-    
+    participant_identity=prospect.phone
     
     session = AgentSession(
         vad=ctx.proc.userdata["vad"],
@@ -249,7 +290,45 @@ async def entrypoint(ctx: JobContext):
         stt=await get_stt(),
         tts=await get_tts()
     )
+    
+    
+    session_started = asyncio.create_task(
+        session.start(
+            agent=DemoAgent(prospect),
+            room=ctx.room,
+            room_input_options=RoomInputOptions(
+                noise_cancellation=noise_cancellation.BVC(),
+            ),
+            room_output_options=RoomOutputOptions(
+                transcription_enabled=True,
+            ),
+        )
+    )
+    
+    try:
+        await ctx.api.sip.create_sip_participant(
+            api.CreateSIPParticipantRequest(
+                room_name=ctx.room.name,
+                sip_trunk_id=outbount_trunk_id,
+                sip_call_to=phone_number,
+                participant_identity=participant_identity,
+                wait_until_answered=True
+            )
+        )
 
+        await session_started
+        participant = await ctx.wait_for_participant(identity=participant_identity)
+        logger.info(f"participant joined:{participant_identity}")
+        agent.set_participant(participant)
+    except api.TwirpError as e:
+        logger.error(
+            f"error creating SIP participant:{e.message},"
+            f"SIP status:{e.metadata.get('sip_status_code')}"
+            f"{e.metadata.get('sip_status')}"
+        )
+        ctx.shutdown()
+    
+    
     @session.on("agent_false_interruption")
     def _on_false_interruption(ev):
         logger.info("False positive interruption detected, resuming.")
@@ -266,16 +345,6 @@ async def entrypoint(ctx: JobContext):
 
     ctx.add_shutdown_callback(log_usage)
 
-    await session.start(
-        agent=DemoAgent(prospect),
-        room=ctx.room,
-        room_input_options=RoomInputOptions(
-            noise_cancellation=noise_cancellation.BVC(),
-        ),
-        room_output_options=RoomOutputOptions(
-            transcription_enabled=True,
-        ),
-    )
 
     async def cleanup():
         pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"
@@ -292,6 +361,8 @@ async def entrypoint(ctx: JobContext):
 
     ctx.add_shutdown_callback(cleanup)
 
+
+
 def custom_load_func(worker):
     try:
         m = int(get_env_var("MAX_JOBS") or 1)
@@ -299,6 +370,7 @@ def custom_load_func(worker):
         m = 1
     a = len(worker.active_jobs)
     return min(a / m, 1.0) if m > 0 else 1.0
+
 
 if __name__ == "__main__":
     logger.info("Starting LiveKit Interview Agent Worker...")

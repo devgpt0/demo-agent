@@ -285,9 +285,9 @@ async def entrypoint(ctx: JobContext):
             summary="Vertex Media Discovery Call",
             description="Intro call to show how Vertex helps realtors with consistent seller leads.",
             start_time="2025-08-30 10:00",   # Prospect’s confirmed slot
-            attendee_email=prospect_email,
+            attendee_email=prospect.email,
             duration=30,
-            timezone=prospect_timezone
+            timezone=prospect.timezone
         )
 
     ctx.add_shutdown_callback(cleanup)

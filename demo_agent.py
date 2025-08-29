@@ -284,7 +284,7 @@ async def entrypoint(ctx: JobContext):
         schedule_appointment(
             summary="Vertex Media Discovery Call",
             description="Intro call to show how Vertex helps realtors with consistent seller leads.",
-            start_time="2025-08-30 10:00",   # Prospect’s confirmed slot
+            start_time= f"{prospect.appointment_date} {prospect.appointment_time}",
             attendee_email=prospect.email,
             duration=30,
             timezone=prospect.timezone

@@ -408,6 +408,12 @@ if __name__ == "__main__":
     cli.run_app(
         WorkerOptions(
             entrypoint_fnc=entrypoint,
-            agent_name="outbound-caller",
+            agent_name="demo-agent",
+            entrypoint_fnc=entrypoint,
+            prewarm_fnc=prewarm,
+            load_fnc=custom_load_func,
+            load_threshold=1.0,
+            max_retry=18,
+            initialize_process_timeout=30.0,
         )
     )

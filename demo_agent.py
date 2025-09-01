@@ -18,6 +18,7 @@ from utils.data_utils.time_utils import parse_time_str,human_time
 from repository.prospect_repository import get_prospect_from_db, save_prospect_to_db
 from book_appointment import schedule_appointment
 from livekit import rtc, api
+from livekit.plugins.turn_detector.multilingual import MultilingualModel
 from livekit.agents import (
     AgentSession,
     Agent,
@@ -38,13 +39,10 @@ from livekit.plugins import (
 )
 
 
-
-# load environment variables, this is optional, only used for local development
-load_dotenv(dotenv_path=".env.local")
 logger = logging.getLogger("outbound-caller")
 logger.setLevel(logging.INFO)
 
-outbound_trunk_id = os.getenv("SIP_OUTBOUND_TRUNK_ID")
+outbound_trunk_id = get_env_var("SIP_OUTBOUND_TRUNK_ID")
 
 
 class DemoAgent(Agent):
@@ -241,17 +239,7 @@ class DemoAgent(Agent):
             )
         )
 
-    def prewarm(proc: JobProcess):
-        proc.userdata["vad"] = silero.VAD.load(
-            min_speech_duration=0.05,
-            min_silence_duration=1.3,
-            prefix_padding_duration=0.2,
-            max_buffered_speech=500.0,
-            activation_threshold=0.45,
-            sample_rate=16000,
-            force_cpu=True,
-        )
-        logger.info("Silero VAD prewarmed")
+
     
     
     @function_tool()
@@ -289,7 +277,7 @@ class DemoAgent(Agent):
 
     @function_tool()
     async def end_call(self, ctx: RunContext):
-        """Called when the user wants to end the call"""
+        """Called after the user confirm the details """
         logger.info(f"ending the call for {self.participant.identity}")
 
         # let the agent finish speaking
@@ -300,48 +288,31 @@ class DemoAgent(Agent):
         await self.hangup()
 
     @function_tool()
-    async def look_up_availability(
-        self,
-        ctx: RunContext,
-        date: str,
-    ):
-        """Called when the user asks about alternative appointment availability
-
-        Args:
-            date: The date of the appointment to check availability for
-        """
-        logger.info(
-            f"looking up availability for {self.participant.identity} on {date}"
-        )
-        await asyncio.sleep(3)
-        return {
-            "available_times": ["1pm", "2pm", "3pm"],
-        }
-
-    @function_tool()
-    async def confirm_appointment(
-        self,
-        ctx: RunContext,
-        date: str,
-        time: str,
-    ):
-        """Called when the user confirms their appointment on a specific date.
-        Use this tool only when they are certain about the date and time.
-
-        Args:
-            date: The date of the appointment
-            time: The time of the appointment
-        """
-        logger.info(
-            f"confirming appointment for {self.participant.identity} on {date} at {time}"
-        )
-        return "reservation confirmed"
-
-    @function_tool()
     async def detected_answering_machine(self, ctx: RunContext):
         """Called when the call reaches voicemail. Use this tool AFTER you hear the voicemail greeting"""
         logger.info(f"detected answering machine for {self.participant.identity}")
         await self.hangup()
+
+def prewarm(proc: JobProcess):
+    proc.userdata["vad"] = silero.VAD.load(
+        min_speech_duration=0.05,
+        min_silence_duration=1.3,
+        prefix_padding_duration=0.2,
+        max_buffered_speech=500.0,
+        activation_threshold=0.45,
+        sample_rate=16000,
+        force_cpu=True,
+    )
+    logger.info("Silero VAD prewarmed")
+
+def custom_load_func(worker):
+    try:
+        m = int(get_env_var("MAX_JOBS") or 1)
+    except Exception:
+        m = 1
+    a = len(worker.active_jobs)
+    return min(a / m, 1.0) if m > 0 else 1.0  
+    
 
 
 async def entrypoint(ctx: JobContext):
@@ -357,10 +328,18 @@ async def entrypoint(ctx: JobContext):
 
     
     session = AgentSession(
+        allow_interruptions=True,
+        turn_detection=MultilingualModel(),
         vad=ctx.proc.userdata["vad"],
-        llm=await get_llm(),
-        stt=await get_stt(),
-        tts=await get_tts()
+        stt=deepgram.STT(),
+        # To use OpenAI Realtime API
+        llm=openai.realtime.RealtimeModel(
+            voice="alloy",
+            # it's necessary to turn off turn detection in the OpenAI Realtime API in order to use
+            # LiveKit's turn detection model
+            turn_detection=None,
+            input_audio_transcription=None,  # we use Deepgram STT instead
+        ),
        
     )
 
@@ -372,6 +351,9 @@ async def entrypoint(ctx: JobContext):
             room=ctx.room,
             room_input_options=RoomInputOptions(
                 noise_cancellation=noise_cancellation.BVCTelephony(),
+            ),
+            room_output_options=RoomOutputOptions(
+                transcription_enabled=True,
             ),
         )
     )

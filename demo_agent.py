@@ -358,9 +358,8 @@ async def entrypoint(ctx: JobContext):
     logger.info(f"connecting to room {ctx.room.name}")
     await ctx.connect()
 
-
     dial_info = json.loads(ctx.job.metadata)
-    logger.info(f"dial info from json:{dail_info}")
+    logger.info(f"dial info from json:{dial_info}")
     participant_identity = phone_number = dial_info["phone_number"]
 
     pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"

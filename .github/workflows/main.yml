@@ -1,0 +1,69 @@
+name: demo-agent deployment on ec2
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v3
+
+      - name: Prepare demo-agent archive
+        run: |
+          mkdir demo-dist
+          cp requirements.txt demo-dist/
+          cp .env demo-dist/
+          cp -r models repository utils demo_agent.py book_appointment.py demo_agent_backup.py demo-dist/
+          ls -al demo-dist/
+          tar -czf demo-agent.tar.gz demo-dist
+
+      - name: Setup SSH key
+        run: |
+          echo "${{ secrets.EC2_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: Upload archive to EC2
+        run: |
+          scp -i private_key.pem -o StrictHostKeyChecking=no demo-agent.tar.gz \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
+
+      - name: SSH Deploy on EC2
+        run: |
+          ssh -i private_key.pem -o StrictHostKeyChecking=no \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+
+            DEPLOY_PATH="/home/${USER}/phone-agent"
+
+            echo "📦 Backup old deployment"
+            if [ -d "$DEPLOY_PATH" ]; then
+              TIMESTAMP=$(date +'%Y%m%d%H%M%S')
+              mkdir -p ~/backup-agents
+              mv "$DEPLOY_PATH" ~/backup-agents/phone-agent-$TIMESTAMP
+            fi
+
+            echo "📂 Extracting new package"
+            mkdir -p "$DEPLOY_PATH"
+            tar -xzf demo-agent.tar.gz -C "$DEPLOY_PATH" --strip-components=1
+            rm -f demo-agent.tar.gz
+
+            cd "$DEPLOY_PATH"
+
+            echo "🐍 Setting up virtual environment"
+            if [ -d venv ]; then rm -rf venv; fi
+            python3 -m venv venv
+            source venv/bin/activate
+
+            echo "📦 Installing dependencies"
+            pip install --upgrade pip
+            pip install -r requirements.txt
+
+            echo "🌐 Downloading spaCy model"
+            python -m spacy download en_core_web_sm
+
+            echo "🚀 Restarting demo agent"
+            nohup python3 demo_agent.py > agent.log 2>&1 &
+          EOF

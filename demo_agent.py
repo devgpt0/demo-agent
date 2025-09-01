@@ -217,6 +217,14 @@ class DemoAgent(Agent):
                     f"- Email: {self.prospect.email}\n\n"
                     f"Can you confirm these details are correct?"
                 )
+                schedule_appointment(
+                    summary=f"Vertex Media Discovery Call-{self.prospect.first_name}",
+                    description="Intro call to show how Vertex helps realtors with consistent seller leads.",
+                    start_time= f"{prospect.appointment_date} {prospect.appointment_time}",
+                    attendee_email=prospect.email,
+                    duration=30,
+                    timezone=prospect.timezone
+                )
                 await context.session.generate_reply(instructions=confirmation_msg)
             
             
@@ -352,6 +360,7 @@ async def entrypoint(ctx: JobContext):
 
 
     dial_info = json.loads(ctx.job.metadata)
+    logger.info(f"dial info from json:{dail_info}")
     participant_identity = phone_number = dial_info["phone_number"]
 
     pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"
@@ -364,7 +373,7 @@ async def entrypoint(ctx: JobContext):
         vad=ctx.proc.userdata["vad"],
         llm=openai.LLM(model="gpt-4o"),
         stt=deepgram.STT(),
-        tts=cartesia.TTS()  
+        tts=cartesia.TTS(voice="8fb675e3-6c4c-4074-8266-18594a45c34e")  
     )
 
     # start the session first before dialing, to ensure that when the user picks up

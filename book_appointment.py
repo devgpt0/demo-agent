@@ -8,7 +8,7 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from email.mime.text import MIMEText
-
+from repository.prospect_repository import get_prospect_from_db
 # -----------------------------
 # CONFIG
 # -----------------------------

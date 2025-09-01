@@ -351,8 +351,8 @@ def prewarm(proc: JobProcess):
             force_cpu=True,
         )
         logger.info("Silero VAD prewarmed")
-    
-    
+
+
 
 async def entrypoint(ctx: JobContext):
     logger.info(f"connecting to room {ctx.room.name}")
@@ -372,7 +372,7 @@ async def entrypoint(ctx: JobContext):
         vad=ctx.proc.userdata["vad"],
         llm=openai.LLM(model="gpt-4o"),
         stt=deepgram.STT(),
-        tts=cartesia.TTS(voice="8fb675e3-6c4c-4074-8266-18594a45c34e")  
+        tts=cartesia.TTS(voice="8fb675e3-6c4c-4074-8266-18594a45c34e")
     )
 
     # start the session first before dialing, to ensure that when the user picks up

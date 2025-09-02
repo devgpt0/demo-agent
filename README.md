@@ -111,7 +111,7 @@ To run in mac/linux terminal
 ```bash
 lk dispatch create --new-room --agent-name outbound-caller  --url wss://test-call-qp1usvzx.livekit.cloud  --api-key APIiEEBMoYUrtCR  --api-secret ng3295wJeVFnONuwLJakUYl6soeQgQLeWRKgI8kPd30A --metadata '{"phone_number": "+919664069557", "from": "+12408961571"}'
 ```
-To run in window terminal(git bash powershell)
+To run in window terminal(git-bash/powershell)
 ```bash
 lk dispatch create --new-room --agent-name outbound-caller  --url wss://test-call-qp1usvzx.livekit.cloud  --api-key APIiEEBMoYUrtCR  --api-secret ng3295wJeVFnONuwLJakUYl6soeQgQLeWRKgI8kPd30A --metadata "{\"phone_number\": \"+919664069557\", \"from\": \"+12408961571\"}"
 ```

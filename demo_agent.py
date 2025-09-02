@@ -148,6 +148,9 @@ class DemoAgent(Agent):
             "1. Appointment is booked with date, time zone (or location-derived), time, and confirmed corrected email.\n"
             "2. Prospect confirms they’ll attend.\n"
             "3. Prospect acknowledges Vertex offers real sellers, not just random leads.\n"
+            
+            "Exist\n"
+            "If user confirms the appointment from user say bye"
         )
         
         super().__init__(
@@ -220,10 +223,10 @@ class DemoAgent(Agent):
                 schedule_appointment(
                     summary=f"Vertex Media Discovery Call-{self.prospect.first_name}",
                     description="Intro call to show how Vertex helps realtors with consistent seller leads.",
-                    start_time= f"{prospect.appointment_date} {prospect.appointment_time}",
-                    attendee_email=prospect.email,
+                    start_time= f"{self.prospect.appointment_date} {self.prospect.appointment_time}",
+                    attendee_email=self.prospect.email,
                     duration=30,
-                    timezone=prospect.timezone
+                    timezone=self.prospect.timezone
                 )
                 await context.session.generate_reply(instructions=confirmation_msg)
             
@@ -238,9 +241,9 @@ class DemoAgent(Agent):
             return save_prospect_to_db(self.prospect)
         return save
     
-    
+    @function_tool()
     async def hangup(self):
-        """Helper function to hang up the call by deleting the room"""
+        """Called after the agent say bye"""
 
         job_ctx = get_job_context()
         await job_ctx.api.room.delete_room(
@@ -371,8 +374,8 @@ async def entrypoint(ctx: JobContext):
     session = AgentSession(
         vad=ctx.proc.userdata["vad"],
         llm=openai.LLM(model="gpt-4o"),
-        stt=deepgram.STT(),
-        tts=cartesia.TTS(voice="8fb675e3-6c4c-4074-8266-18594a45c34e")
+        stt=await get_stt(),
+        tts=await get_tts()
     )
 
     # start the session first before dialing, to ensure that when the user picks up
@@ -435,3 +438,5 @@ if __name__ == "__main__":
             initialize_process_timeout=30.0,
         )
     )
+    
+    

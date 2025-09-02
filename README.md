@@ -107,3 +107,11 @@ python demo-agent.py console
 ---
 
 Do you want me to now **convert this requirement into a structured agent design doc** (like flow + system blueprint for implementation), or keep it just as a textual requirement summary?
+To run in mac/linux terminal
+```bash
+lk dispatch create --new-room --agent-name outbound-caller  --url wss://test-call-qp1usvzx.livekit.cloud  --api-key APIiEEBMoYUrtCR  --api-secret ng3295wJeVFnONuwLJakUYl6soeQgQLeWRKgI8kPd30A --metadata '{"phone_number": "+919664069557", "from": "+12408961571"}'
+```
+To run in window terminal(git bash powershell)
+```bash
+lk dispatch create --new-room --agent-name outbound-caller  --url wss://test-call-qp1usvzx.livekit.cloud  --api-key APIiEEBMoYUrtCR  --api-secret ng3295wJeVFnONuwLJakUYl6soeQgQLeWRKgI8kPd30A --metadata "{\"phone_number\": \"+919664069557\", \"from\": \"+12408961571\"}"
+```

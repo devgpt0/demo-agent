@@ -6,3 +6,4 @@ logs
 credentials.json
 token_cal.pickle
 token_gmail.pickle
+.env

@@ -108,7 +108,7 @@ class DemoAgent(Agent):
             "   → If unclear: 'Can you spell that out for me so I don’t make a mistake?'\n"
             "   ->If there are numbers in the email id ,write them as numbers"
             "   → Normalize email: lowercase, remove spaces, ensure '@' and domain, fix common typos.\n"
-            "   → Read back corrected email very slowly letter by letter.'\n"
+            "   → Read back corrected email very slowly letter by letter always.'\n"
             "   → Do not continue until they confirm.\n"
             "   → Without confirmed valid email = failed booking.\n\n"
 
@@ -175,8 +175,6 @@ class DemoAgent(Agent):
 
                     description="Call this function when user has provided their location or timezone."
                 ),
-               
-
             ],
             instructions= instructions
         )
@@ -241,7 +239,7 @@ class DemoAgent(Agent):
             return save_prospect_to_db(self.prospect)
         return save
     
-    @function_tool()
+    
     async def hangup(self):
         """Called after the agent say bye"""
 

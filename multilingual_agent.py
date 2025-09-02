@@ -37,11 +37,11 @@ from livekit.plugins import (
     aws,
     noise_cancellation,  # noqa: F401
 )
-
+from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
 
 # load environment variables, this is optional, only used for local development
-load_dotenv(dotenv_path=".env.local")
+load_dotenv(dotenv_path=".env")
 logger = logging.getLogger("outbound-caller")
 logger.setLevel(logging.INFO)
 
@@ -95,9 +95,9 @@ class DemoAgent(Agent):
 
             "# Booking Rules\n"
             "- After they say yes, immediately pivot:\n"
-            "  → 'Perfect — let’s grab 5 minutes so we can show you how it works. What time zone are you in?'\n"
-            "- Must always ask for their time zone first and always store in IANA Time Zone Database format(tzdb).\n"
-            "- If unknown, ask for city/state. Deduce timezone in IANA Time Zone Database (tzdb) format if possible.\n"
+            "   → 'Perfect — let’s grab 5 minutes so we can show you how it works. What time zone are you in?'\n"
+            "- Must always ask for their time zone first.\n"
+            "- If unknown, ask for city/state. Deduce timezone if possible.\n"
             "- Never book today — start from the next business day.\n"
             f"- Offer exactly two specific options: '{d1} at 10am' OR '{d2} at 2pm'.\n"
             "- Confirm one slot with the prospect.\n\n"
@@ -108,14 +108,14 @@ class DemoAgent(Agent):
             "   → If unclear: 'Can you spell that out for me so I don’t make a mistake?'\n"
             "   ->If there are numbers in the email id ,write them as numbers"
             "   → Normalize email: lowercase, remove spaces, ensure '@' and domain, fix common typos.\n"
-            "   → Read back corrected email very slowly letter by letter always.'\n"
+            "   → Read back corrected email very slowly letter by letter.'\n"
             "   → Do not continue until they confirm.\n"
             "   → Without confirmed valid email = failed booking.\n\n"
 
             "- Read back appointment details once in clear format:\n"
             f"   → Date: {appointment_date}\n"
             f"   → Time: {appointment_time}\n"
-            "   → Include timezone strictly in IANA Time Zone Database (tzdb) format\n"
+            "   → Include timezone.\n"
             f"- Example: 'So I’ve got you for {appointment_date} at {appointment_time} your time, correct?'\n"
             "- Tell them: 'You’ll get a confirmation email in a few minutes for a meeting' → confirm they’ll check it.\n"
             "- Ask: 'Is there anything that would prevent you from attending?'\n\n"
@@ -148,9 +148,6 @@ class DemoAgent(Agent):
             "1. Appointment is booked with date, time zone (or location-derived), time, and confirmed corrected email.\n"
             "2. Prospect confirms they’ll attend.\n"
             "3. Prospect acknowledges Vertex offers real sellers, not just random leads.\n"
-            
-            "Exist\n"
-            "If user confirms the appointment from user say bye"
         )
         
         super().__init__(
@@ -175,6 +172,8 @@ class DemoAgent(Agent):
 
                     description="Call this function when user has provided their location or timezone."
                 ),
+               
+
             ],
             instructions= instructions
         )
@@ -218,14 +217,6 @@ class DemoAgent(Agent):
                     f"- Email: {self.prospect.email}\n\n"
                     f"Can you confirm these details are correct?"
                 )
-                schedule_appointment(
-                    summary=f"Vertex Media Discovery Call-{self.prospect.first_name}",
-                    description="Intro call to show how Vertex helps realtors with consistent seller leads.",
-                    start_time= f"{self.prospect.appointment_date} {self.prospect.appointment_time}",
-                    attendee_email=self.prospect.email,
-                    duration=30,
-                    timezone=self.prospect.timezone
-                )
                 await context.session.generate_reply(instructions=confirmation_msg)
             
             
@@ -241,7 +232,7 @@ class DemoAgent(Agent):
     
     
     async def hangup(self):
-        """Called after the agent say bye"""
+        """Helper function to hang up the call by deleting the room"""
 
         job_ctx = get_job_context()
         await job_ctx.api.room.delete_room(
@@ -352,15 +343,15 @@ def prewarm(proc: JobProcess):
             force_cpu=True,
         )
         logger.info("Silero VAD prewarmed")
-
-
+    
+    
 
 async def entrypoint(ctx: JobContext):
     logger.info(f"connecting to room {ctx.room.name}")
     await ctx.connect()
 
+
     dial_info = json.loads(ctx.job.metadata)
-    logger.info(f"dial info from json:{dial_info}")
     participant_identity = phone_number = dial_info["phone_number"]
 
     pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"
@@ -370,10 +361,14 @@ async def entrypoint(ctx: JobContext):
     agent=DemoAgent(prospect)
     
     session = AgentSession(
+        allow_interruptions=True,
+        turn_detection=MultilingualModel(),
         vad=ctx.proc.userdata["vad"],
-        llm=openai.LLM(model="gpt-4o"),
-        stt=await get_stt(),
-        tts=await get_tts()
+        
+        llm=openai.realtime.RealtimeModel(
+            modalities=["text"]
+        ),
+        tts=openai.TTS(voice="fable")  
     )
 
     # start the session first before dialing, to ensure that when the user picks up
@@ -436,5 +431,3 @@ if __name__ == "__main__":
             initialize_process_timeout=30.0,
         )
     )
-    
-    

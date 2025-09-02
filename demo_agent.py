@@ -428,6 +428,7 @@ if __name__ == "__main__":
     cli.run_app(
         WorkerOptions(
             agent_name="outbound-caller",
+            agent_name="outbound-caller",
             entrypoint_fnc=entrypoint,
             prewarm_fnc=prewarm,
             load_fnc=custom_load_func,

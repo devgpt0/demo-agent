@@ -16,7 +16,7 @@ ENV_LLM_MAP = {
     "test": "azure-openai",
     "dev": "azure-openai",
     "client": "openai",
-    "local": "openai"
+    "local": "azure-openai"
 }
 
 class LLMStrategy(ABC):

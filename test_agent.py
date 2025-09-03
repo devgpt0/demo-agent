@@ -1,11 +1,5 @@
-from __future__ import annotations
-import datetime
 import asyncio
-import logging
-from dotenv import load_dotenv
-import json
-import os
-from typing import Any,Optional
+from typing import Optional
 from models.prospect import Prospect
 from utils.agent_utils.llm_strategy import get_llm
 from utils.agent_utils.stt_strategy import get_stt
@@ -17,52 +11,49 @@ from utils.data_utils.date_utils import parse_date,get_next_two_dates
 from utils.data_utils.time_utils import parse_time_str,human_time
 from repository.prospect_repository import get_prospect_from_db, save_prospect_to_db
 from book_appointment import schedule_appointment
-from livekit import rtc, api
 from livekit.agents import (
-    AgentSession,
+    NOT_GIVEN,
     Agent,
+    AgentSession,
     JobContext,
-    function_tool,
-    RunContext,
-    get_job_context,
-    cli,
-    WorkerOptions,
+    JobProcess,
+    MetricsCollectedEvent,
     RoomInputOptions,
+    RoomOutputOptions,
+    WorkerOptions,
+    RunContext,
+    function_tool,
+    cli,
+    metrics,
 )
-from livekit.plugins import (
-    deepgram,
-    openai,
-    cartesia,
-    silero,
-    aws,
-    noise_cancellation,  # noqa: F401
-)
+from livekit.plugins import silero,openai
+from livekit.plugins import noise_cancellation
+import datetime
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
+logger = get_logger("interview-agent")
 
-# load environment variables, this is optional, only used for local development
-load_dotenv(dotenv_path=".env")
-logger = logging.getLogger("outbound-caller")
-logger.setLevel(logging.INFO)
-
-outbound_trunk_id = os.getenv("SIP_OUTBOUND_TRUNK_ID")
-
+# Load configuration
+LIVEKIT_API_KEY       = get_config("LIVEKIT_API_KEY")
+LIVEKIT_API_SECRET    = get_config("LIVEKIT_API_SECRET")
+LIVEKIT_URL           = get_config("LIVEKIT_URL", default="wss://livekit.example.com", required=False)
+ENV                   = get_env_var("ENV", default="dev")
 
 class DemoAgent(Agent):
-
+    
     REQUIRED_FIELDS = {"appointment_date", "appointment_time", "email", "timezone"}
+    
+    def __init__(self, prospect) -> None:
 
-    def __init__(self,prospect)->None:
-        
         self.prospect = prospect 
         self.collected_fields = set()
-        self.pending_confirmation = False  # New flag to track confirmation state
+        self.pending_confirmation = False
         first_name = getattr(prospect, "first_name", None) or "Unknown"
         appointment_date=getattr(prospect,"appointment_date",None) or None
         appointment_time=getattr(prospect,"appointment_time", None) or None
         
         d1, d2 = get_next_two_dates()
-        
+    
         instructions = (
             "You are Adarsh, a multilingual seasoned sales agent working for Hedoo Developers who can detect language and response in the detected language"
             "(https://www.headoodevelopers.us).\n"
@@ -108,7 +99,7 @@ class DemoAgent(Agent):
             "would you actually have room to explore this further?'\n"
             "- If yes, immediately pivot to booking:\n"
             "   → 'Perfect — let's grab 5 minutes so we can show you how it works. What time zone are you in?'\n"
-            "- Always ask for their time zone in IANA Time Zone Database (tzdb) format.\n"
+            "- Always ask for their address and timezone in IANA Time Zone Database (tzdb) format.\n"
             "- If unknown, ask for city/state and deduce timezone.\n"
             "- Never book same-day — start from the next business day.\n"
             "- Offer exactly two specific slots: '{d1} at 10am' OR '{d2} at 2pm'.\n"
@@ -147,54 +138,52 @@ class DemoAgent(Agent):
             "- If user confirms the appointment → politely say goodbye and end the conversation.\n"
         )
 
+       
         
         super().__init__(
             tools=[
                 function_tool(
                     self._set_profile_field_func_for("appointment_date"),
                     name="set_appointment_date",
-                    description="Call this function when user has booked appointment date.",
+                    description="Call this function when user confirms the appointment details are correct. This will schedule the actual appointment."
                 ),
                 function_tool(
                     self._set_profile_field_func_for("appointment_time"),
                     name="set_appointment_time",
-                    description="Call this function when user has booked appointment time.",
+                    description="Call this function when user confirms the appointment details are correct. This will schedule the actual appointment."
                 ),
                 function_tool(
                     self._set_profile_field_func_for("email"),
                     name="set_email",
-                    description="Call this function when user has provided their email.",
+                    description="Call this function when user confirms the appointment details are correct. This will schedule the actual appointment."
                 ),
                 function_tool(
                     self._set_profile_field_func_for("timezone"),
                     name="set_timezone",
-                    description="Call this function when user has provided their timezone.",
+                    description="Call this function when user confirms the appointment details are correct. This will schedule the actual appointment.."
                 ),
                 function_tool(
                     self._set_profile_field_func_for("address"),
                     name="set_address",
-                    description="Call this function when user has provided their address.",
+                    description="Call this function when user confirms the appointment details are correct. This will schedule the actual appointment."    
                 ),
                 function_tool(
                     self._confirm_appointment_details_func(),
                     name="confirm_appointment_details",
-                    description="Call this function when user confirms the appointment details are correct. This will schedule the actual appointment.",
-                ),
+                    description="Call this function when user confirms the appointment details are correct. This will schedule the actual appointment."
+                )
             ],
-            instructions=instructions,
+            instructions= instructions
         )
-
-            # keep reference to the participant for transfers
-        self.participant: rtc.RemoteParticipant | None = None
-
-    def set_participant(self, participant: rtc.RemoteParticipant):
-        self.participant = participant
-
+        
+        
     async def on_enter(self) -> None:
         self.session.generate_reply()
+
     
     def _set_profile_field_func_for(self, field: str):
         async def set_value(context: RunContext, value: str):
+            # Ensure self.prospect exists
             if self.prospect is None:
                 self.prospect = Prospect()
 
@@ -205,14 +194,18 @@ class DemoAgent(Agent):
             else:
                 setattr(self.prospect, field, value)
 
-            # Do NOT save to DB here
+            # Save to DB
+            save_prospect_to_db(self.prospect)
+
+            # Track completion
             self.collected_fields.add(field)
 
-            # Check if all required fields are gathered
-            if self.collected_fields >= self.REQUIRED_FIELDS and not self.pending_confirmation:
-                self.pending_confirmation = True
+            # If all required fields collected, confirm with user
+            if self.collected_fields >= self.REQUIRED_FIELDS:
+                self.pending_confirmation = True 
                 confirmation_msg = (
-                    f"Great! Here's what I have:\n"
+                    f"Great! I've noted everything down.\n"
+                    f"Here's what I have:\n"
                     f"- Date: {self.prospect.appointment_date}\n"
                     f"- Time: {human_time(self.prospect.appointment_time)}\n"
                     f"- Timezone: {self.prospect.timezone}\n"
@@ -265,116 +258,14 @@ class DemoAgent(Agent):
                 return "Error scheduling appointment. Please try again."
         return confirm_appointment_details
 
-    
+        
     def _save_to_db(self):
         def save(context: RunContext):
             return save_prospect_to_db(self.prospect)
         return save
-    
-    
-    async def hangup(self):
-        """Helper function to hang up the call by deleting the room"""
-
-        job_ctx = get_job_context()
-        await job_ctx.api.room.delete_room(
-            api.DeleteRoomRequest(
-                room=job_ctx.room.name,
-            )
-        )
-
-    
-    @function_tool()
-    async def transfer_call(self, ctx: RunContext):
-        """Transfer the call to a human agent, called after confirming with the user"""
-
-        transfer_to = self.dial_info["transfer_to"]
-        if not transfer_to:
-            return "cannot transfer call"
-
-        logger.info(f"transferring call to {transfer_to}")
-
-        # let the message play fully before transferring
-        await ctx.session.generate_reply(
-            instructions="let the user know you'll be transferring them"
-        )
-
-        job_ctx = get_job_context()
-        try:
-            await job_ctx.api.sip.transfer_sip_participant(
-                api.TransferSIPParticipantRequest(
-                    room_name=job_ctx.room.name,
-                    participant_identity=self.participant.identity,
-                    transfer_to=f"tel:{transfer_to}",
-                )
-            )
-
-            logger.info(f"transferred call to {transfer_to}")
-        except Exception as e:
-            logger.error(f"error transferring call: {e}")
-            await ctx.session.generate_reply(
-                instructions="there was an error transferring the call."
-            )
-            await self.hangup()
-
-    @function_tool()
-    async def end_call(self, ctx: RunContext):
-        """Called when the user wants to end the call"""
-        logger.info(f"ending the call for {self.participant.identity}")
-
-        # let the agent finish speaking
-        current_speech = ctx.session.current_speech
-        if current_speech:
-            await current_speech.wait_for_playout()
-
-        await self.hangup()
-
-    @function_tool()
-    async def look_up_availability(
-        self,
-        ctx: RunContext,
-        date: str,
-    ):
-        """Called when the user asks about alternative appointment availability
-
-        Args:
-            date: The date of the appointment to check availability for
-        """
-        logger.info(
-            f"looking up availability for {self.participant.identity} on {date}"
-        )
-        await asyncio.sleep(3)
-        return {
-            "available_times": ["1pm", "2pm", "3pm"],
-        }
-
-    @function_tool()
-    async def confirm_appointment(
-        self,
-        ctx: RunContext,
-        date: str,
-        time: str,
-    ):
-        """Called when the user confirms their appointment on a specific date.
-        Use this tool only when they are certain about the date and time.
-
-        Args:
-            date: The date of the appointment
-            time: The time of the appointment
-        """
-        logger.info(
-            f"confirming appointment for {self.participant.identity} on {date} at {time}"
-        )
-        return "reservation confirmed"
-
-    @function_tool()
-    async def detected_answering_machine(self, ctx: RunContext):
-        """Called when the call reaches voicemail. Use this tool AFTER you hear the voicemail greeting"""
-        logger.info(f"detected answering machine for {self.participant.identity}")
-        await self.hangup()
-
 
 def prewarm(proc: JobProcess):
-        proc.userdata["vad"] = silero.VAD.load(
+    proc.userdata["vad"] = silero.VAD.load(
             min_speech_duration=0.05,
             min_silence_duration=1.3,
             prefix_padding_duration=0.2,
@@ -382,75 +273,75 @@ def prewarm(proc: JobProcess):
             activation_threshold=0.45,
             sample_rate=16000,
             force_cpu=True,
-        )
-        logger.info("Silero VAD prewarmed")
-    
-    
+    )
+    logger.info("Silero VAD prewarmed")
 
 async def entrypoint(ctx: JobContext):
-    logger.info(f"connecting to room {ctx.room.name}")
-    await ctx.connect()
-
-
-    dial_info = json.loads(ctx.job.metadata)
-    participant_identity = phone_number = dial_info["phone_number"]
-
+    ctx.log_context_fields = {"room": ctx.room.name}
+    usage_collector = metrics.UsageCollector()
+    
     pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"
     prospect = get_prospect_from_db(pid)
     print(prospect)
 
-    agent=DemoAgent(prospect)
+    if prospect:
+        logger.info(f"Fetched Prospect: {prospect.to_dict()}")
+    else:
+        logger.warning("Prospect not found.")
+        
+    
     
     session = AgentSession(
         allow_interruptions=True,
         turn_detection=MultilingualModel(),
         vad=ctx.proc.userdata["vad"],
-        
         llm=openai.realtime.RealtimeModel(
             modalities=["text"]
         ),
         tts=openai.TTS(voice="fable")  
     )
 
-    # start the session first before dialing, to ensure that when the user picks up
-    # the agent does not miss anything the user says
-    session_started = asyncio.create_task(
-        session.start(
-            agent=agent,
-            room=ctx.room,
-            room_input_options=RoomInputOptions(
-                noise_cancellation=noise_cancellation.BVCTelephony(),
-            ),
-        )
+    @session.on("agent_false_interruption")
+    def _on_false_interruption(ev):
+        logger.info("False positive interruption detected, resuming.")
+        session.generate_reply(instructions=ev.extra_instructions or NOT_GIVEN)
+
+    @session.on("metrics_collected")
+    def _on_metrics_collected(ev: MetricsCollectedEvent):
+        metrics.log_metrics(ev.metrics)
+        usage_collector.collect(ev.metrics)
+
+    async def log_usage():
+        summary = usage_collector.get_summary()
+        logger.info(f"Usage summary: {summary}")
+
+    ctx.add_shutdown_callback(log_usage)
+
+    await session.start(
+        agent=DemoAgent(prospect),
+        room=ctx.room,
+        room_input_options=RoomInputOptions(
+            noise_cancellation=noise_cancellation.BVC(),
+        ),
+        room_output_options=RoomOutputOptions(
+            transcription_enabled=True,
+        ),
     )
 
-    # `create_sip_participant` starts dialing the user
-    try:
-        await ctx.api.sip.create_sip_participant(
-            api.CreateSIPParticipantRequest(
-                room_name=ctx.room.name,
-                sip_trunk_id=outbound_trunk_id,
-                sip_call_to=phone_number,
-                participant_identity=participant_identity,
-                wait_until_answered=True,
-            )
+    async def cleanup():
+        pid = "f2a45c3c-22f9-4d2f-9a87-b9f7a07b9e8c"
+        prospect = get_prospect_from_db(pid)
+
+        schedule_appointment(
+            summary="Vertex Media Discovery Call",
+            description="Intro call to show how Vertex helps realtors with consistent seller leads.",
+            start_time= f"{prospect.appointment_date} {prospect.appointment_time}",
+            attendee_email=prospect.email,
+            duration=30,
+            timezone=prospect.timezone
         )
 
-        # wait for the agent session start and participant join
-        await session_started
-        participant = await ctx.wait_for_participant(identity=participant_identity)
-        logger.info(f"participant joined: {participant.identity}")
-
-        agent.set_participant(participant)
-
-    except api.TwirpError as e:
-        logger.error(
-            f"error creating SIP participant: {e.message}, "
-            f"SIP status: {e.metadata.get('sip_status_code')} "
-            f"{e.metadata.get('sip_status')}"
-        )
-        ctx.shutdown()
-
+    ctx.add_shutdown_callback(cleanup)
 
 def custom_load_func(worker):
     try:
@@ -461,13 +352,16 @@ def custom_load_func(worker):
     return min(a / m, 1.0) if m > 0 else 1.0
 
 if __name__ == "__main__":
+    logger.info("Starting LiveKit Interview Agent Worker...")
     cli.run_app(
         WorkerOptions(
-            agent_name="outbound-caller",
             entrypoint_fnc=entrypoint,
             prewarm_fnc=prewarm,
             load_fnc=custom_load_func,
             load_threshold=1.0,
+            ws_url=LIVEKIT_URL,
+            api_key=LIVEKIT_API_KEY,
+            api_secret=LIVEKIT_API_SECRET,
             max_retry=18,
             initialize_process_timeout=30.0,
         )

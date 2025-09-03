@@ -16,7 +16,8 @@ class Prospect:
     last_name: Optional[str] = None
     phone: str = ""  
     timezone: Optional[str] = None
-    status: str = "new"  
+    status: str = "new"
+    address:Optional[str]=None
 
     objections: List[str] = field(default_factory=list)
     responses: List[str] = field(default_factory=list)

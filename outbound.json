@@ -1,0 +1,11 @@
+{
+    "trunk": {
+        "name": "My outbound trunk",
+        "address": "bootcoding-outbound-trunk.pstn.twilio.com",
+        "numbers": [
+            "+12408961571"
+        ],
+        "auth_username": "dev.aceint@gmail.com",
+        "auth_password": "ZDT6&June@123"
+    }
+}

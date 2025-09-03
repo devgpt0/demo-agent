@@ -56,7 +56,7 @@ class DemoAgent(Agent):
         
         self.prospect = prospect 
         self.collected_fields = set()
-        self.pending_confirmation = False  # New flag to track confirmation state
+        self.pending_confirmation = False # New flag to track confirmation state
         first_name = getattr(prospect, "first_name", None) or "Unknown"
         appointment_date=getattr(prospect,"appointment_date",None) or None
         appointment_time=getattr(prospect,"appointment_time", None) or None

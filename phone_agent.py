@@ -195,7 +195,6 @@ class DemoAgent(Agent):
     
     def _set_profile_field_func_for(self, field: str):
         async def set_value(context: RunContext, value: str):
-            # Ensure self.prospect exists
             if self.prospect is None:
                 self.prospect = Prospect()
 
@@ -206,18 +205,14 @@ class DemoAgent(Agent):
             else:
                 setattr(self.prospect, field, value)
 
-            # Save to DB (save current progress)
-            save_prospect_to_db(self.prospect)
-
-            # Track completion
+            # ✅ Do NOT save to DB here
             self.collected_fields.add(field)
 
-            # If all required fields collected, ask for confirmation
+            # Check if all required fields are gathered
             if self.collected_fields >= self.REQUIRED_FIELDS and not self.pending_confirmation:
                 self.pending_confirmation = True
                 confirmation_msg = (
-                    f"Great! I've noted everything down.\n"
-                    f"Here's what I have:\n"
+                    f"Great! Here's what I have:\n"
                     f"- Date: {self.prospect.appointment_date}\n"
                     f"- Time: {human_time(self.prospect.appointment_time)}\n"
                     f"- Timezone: {self.prospect.timezone}\n"
@@ -227,21 +222,21 @@ class DemoAgent(Agent):
                 await context.session.generate_reply(instructions=confirmation_msg)
 
             return
-     
         return set_value
-    
+
     def _confirm_appointment_details_func(self):
-        """Returns a function that confirms appointment details"""
         async def confirm_appointment_details(context: RunContext):
-            """This function is called when the user confirms the appointment details"""
             if not self.pending_confirmation:
                 return "No appointment details to confirm."
-            
+
             if self.collected_fields < self.REQUIRED_FIELDS:
                 return "Missing required information. Please provide all details first."
-            
+
             try:
-                # Schedule the appointment
+                # ✅ Save once when user confirms
+                save_prospect_to_db(self.prospect)
+
+                # ✅ Schedule appointment once
                 schedule_appointment(
                     summary=f"Hedoo Developers Discovery Call - {self.prospect.first_name}",
                     description="Discovery call to discuss affordable flat options at Magnolia Building, Civil Lines, Nagpur.",
@@ -250,31 +245,26 @@ class DemoAgent(Agent):
                     duration=30,
                     timezone=self.prospect.timezone
                 )
-                
-                # Reset confirmation flag
+
                 self.pending_confirmation = False
-                
-                # Final confirmation message
+
                 final_msg = (
                     f"Perfect! Your appointment has been scheduled for {self.prospect.appointment_date} "
                     f"at {human_time(self.prospect.appointment_time)} in your timezone. "
-                    f"You'll receive a confirmation email at {self.prospect.email} within the next few minutes. "
-                    f"Please make sure to check your inbox and spam folder. "
+                    f"You'll receive a confirmation email at {self.prospect.email}. "
                     f"Is there anything that would prevent you from attending this meeting?"
                 )
-                
                 await context.session.generate_reply(instructions=final_msg)
                 return "Appointment confirmed and scheduled successfully!"
-                
+
             except Exception as e:
                 logger.error(f"Error scheduling appointment: {e}")
                 await context.session.generate_reply(
                     instructions="I apologize, there was an error scheduling your appointment. Let me try that again."
                 )
                 return "Error scheduling appointment. Please try again."
-        
         return confirm_appointment_details
-    
+
     
     def _save_to_db(self):
         def save(context: RunContext):

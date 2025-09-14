@@ -1,4 +1,4 @@
-name: demo-agent deployment on ec2
+name: phon-agent deployment on ec2
 
 on:
   workflow_dispatch:
@@ -11,14 +11,17 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v3
 
-      - name: Prepare demo-agent archive
+      - name: Prepare property-sales-agent archive
         run: |
-          mkdir demo-dist
-          cp requirements.txt demo-dist/
+          mkdir agent-dist
+          cp requirements.txt agent-dist/
           cp .env demo-dist/
-          cp -r models repository utils demo_agent.py book_appointment.py demo_agent_backup.py demo-dist/
-          ls -al demo-dist/
-          tar -czf demo-agent.tar.gz demo-dist
+          cp -r models repository utils property_sales_agent.py \
+                book_appointment.py demo_agent.py demo_voice_only.py \
+                loan_finance_agent.py multilingual_agent.py \
+                outbound.json screening_agent.py test_agent.py agent-dist/
+          ls -al agent-dist/
+          tar -czf demo-agent.tar.gz agent-dist
 
       - name: Setup SSH key
         run: |
@@ -35,44 +38,44 @@ jobs:
           ssh -i private_key.pem -o StrictHostKeyChecking=no \
           ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             set -e
-          
+
             DEPLOY_PATH="$HOME/phone-agent"
-          
+
             echo "📦 Backup old deployment"
             if [ -d "$DEPLOY_PATH" ]; then
               TIMESTAMP=$(date +'%Y%m%d%H%M%S')
               mkdir -p ~/backup-agents
               mv "$DEPLOY_PATH" ~/backup-agents/phone-agent-\$TIMESTAMP
             fi
-          
+
             echo "📂 Extracting new package"
             mkdir -p "$DEPLOY_PATH"
             tar -xzf demo-agent.tar.gz -C "$DEPLOY_PATH" --strip-components=1
             rm -f demo-agent.tar.gz
             cd "$DEPLOY_PATH"
-          
+
             echo "📥 Ensuring Python available"
             if ! command -v python3 >/dev/null 2>&1; then
                sudo apt-get update -y
                sudo apt-get install -y python3.12 python3.12-venv python3-pip
             fi
-          
+
             echo "🐍 Setting up virtual environment"
             if [ ! -d venv ]; then
               python3 -m venv venv
             fi
             source venv/bin/activate
-          
+
             echo "📦 Installing dependencies"
             python -m pip install --upgrade pip
             python -m pip install -r requirements.txt
-          
-            echo "🌐 Ensuring spaCy model"
-            python -m spacy download en_core_web_sm || true
-          
+
+            echo "🌐 Downloading required files"
+            python property_sales_agent.py download-files || true
+
             echo "🛑 Stopping old agent process"
-            pkill -f demo_agent.py || true
-          
-            echo "🚀 Starting new demo agent"
-            nohup venv/bin/python demo_agent.py > agent.log 2>&1 &
+            pkill -f property_sales_agent.py || true
+
+            echo "🚀 Starting new property sales agent"
+            nohup venv/bin/python property_sales_agent.py start > agent.log 2>&1 &
           EOF

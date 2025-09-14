@@ -15,7 +15,7 @@ ENV_LLM_MAP = {
     "prod": "azure-openai",
     "test": "azure-openai",
     "dev": "azure-openai",
-    "client": "openai",
+    "client": "azure-openai",
     "local": "azure-openai"
 }
 
@@ -78,7 +78,7 @@ class GoogleStrategy(LLMStrategy):
             return None
         params = {"temperature": 0.3}
         logger.debug("Instantiating google LLM")
-        return google.LLM(api_key=api_key, model="gemini-2.5-flash", **params)
+        return google.LLM(api_key=api_key, model="gemini-1.5-flash", **params)
 
 class AzureOpenAIStrategy(LLMStrategy):
     async def create(self) -> Optional[object]:
@@ -87,7 +87,7 @@ class AzureOpenAIStrategy(LLMStrategy):
             logger.error("Missing API key for azure-openai")
             return None
         params = {
-            "azure_endpoint": "https://test-aceint.openai.azure.com/",
+            "azure_endpoint": "https://aceint-openai.openai.azure.com/",
             "azure_deployment": "gpt-4o-mini",
             "api_version": "2024-12-01-preview"
         }
@@ -106,7 +106,6 @@ async def get_llm() -> Optional[object]:
         "azure-openai": AzureOpenAIStrategy()
     }
 
-    # Try selected strategy
     strategy = strategies.get(selected_llm)
     if not strategy:
         logger.error(f"No strategy found for LLM: {selected_llm}")
@@ -118,10 +117,9 @@ async def get_llm() -> Optional[object]:
         logger.info(f"Successfully instantiated LLM: {selected_llm}")
         return llm
 
-    # Fallback to azure-openai
     if selected_llm != "azure-openai":
         logger.warning(f"Selected LLM {selected_llm} failed, falling back to azure-openai")
-        fallback_strategy = strategies["azure-openai"]
+        fallback_strategy = strategies["openai"]
         llm = await fallback_strategy.create()
         if llm:
             logger.info("Successfully instantiated fallback azure-openai LLM")

@@ -19,6 +19,12 @@ python demo-agent download-files
 ```bash
 python demo-agent.py console
 ```
+# To make a call, follow these steps:
+```bash
+python outbound_agent.py start
+python outbound_agent.py --make_call 
+```
+
 
 # Client Requirements – Vertex Media Cold Calling Agent
 

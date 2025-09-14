@@ -35,7 +35,8 @@ from livekit.plugins import (
     cartesia,
     silero,
     aws,
-    noise_cancellation,  # noqa: F401
+    azure,
+    noise_cancellation
 )
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 

@@ -11,11 +11,11 @@ logger = get_logger("TTS-FACTORY")
 
 # Environment to TTS mapping
 ENV_TTS_MAP = {
-    "prod": "aws",
-    "test": "aws",
-    "dev": "aws",
-    "client": "aws",
-    "local": "aws"
+    "prod": "azure",
+    "test": "azure",
+    "dev": "azure",
+    "client": "azure",
+    "local": "azure"
 }
 
 class TTSStrategy(ABC):
@@ -23,34 +23,21 @@ class TTSStrategy(ABC):
     async def create(self) -> Optional[object]:
         pass
 
-class ElevenLabsStrategy(TTSStrategy):
-    async def create(self) ->Optional[object]:
-        api_key = get_config("ELEVEN_LABS_API_KEY")
-        voice_id=get_config("ElEVEN_LABS_VOICE_ID")
-        model="eleven_multilingual_v2"
-        if not (api_key and voice_id):
-            logger.error("Missing ElevenLabs credentials or voice id")
-            return None
-        
-        logger.debug("Instanting elevenlabs TTS")
-        
-        return elevenlabs.TTS(api_key=api_key,voice_id=voice_id, model=model)
-        
 class AWSStrategy(TTSStrategy):
     async def create(self) -> Optional[object]:
         api_key = get_config("AWS_ACCESS_KEY_ID")
         api_secret = get_config("AWS_SECRET_ACCESS_KEY")
         region = get_config("AWS_REGION")
+        voice = get_config("AWS_VOICE_ID")
         if not (api_key and api_secret and region):
             logger.error("Missing AWS credentials or region")
             return None
         params = {
-            "voice": "Matthew",
             "speech_engine": "standard",
-            "language": "en-US",
+            "language": "en-IN",
         }
         logger.debug("Instantiating aws TTS")
-        return aws.TTS(api_key=api_key, api_secret=api_secret, region=region, **params)
+        return aws.TTS(api_key=api_key, api_secret=api_secret, region=region,voice=voice,**params)
 
 class GoogleStrategy(TTSStrategy):
     async def create(self) -> Optional[object]:
@@ -71,11 +58,33 @@ class DeepgramStrategy(TTSStrategy):
             logger.error("Missing Deepgram API key")
             return None
         params = {
-            "model": "aura-2-athena-en",
+            "model": "aura-asteria-en",
         }
         logger.debug("Instantiating deepgram TTS")
         return deepgram.TTS(api_key=api_key, **params)
 
+class CartesiaStrategy(TTSStrategy):
+    async def create(self)->Optional[object]:
+        api_key = get_config("CARTESIA_API_KEY")
+        voice= get_config("CARTESIA_VOICE_ID")
+        if not api_key:
+            logger.error("Missing Cartesia API key")
+            return None
+        logger.debug("Instantiating cartesia TTS")
+        return cartesia.TTS(api_key=api_key,voice=voice)   
+    
+class AzureStrategy(TTSStrategy):
+    async def create(self)->Optional[object]:
+        speech_key=get_config("AZURE_SPEECH_API_KEY")
+        speech_region=get_config("AZURE_SPEECH_REGION")
+        if not (speech_key and speech_region):
+            logger.info("Missing Value for one of these :speech_key, speech_region or speech_endpoint")
+            return None
+        
+        logger.info("Instantiating azure TTS")
+        return azure.TTS(speech_key=speech_key,speech_region=speech_region,voice="en-US-BrandonMultilingualNeural")
+        
+    
 async def get_tts() -> Optional[object]:
     env = get_env_var("ENV", default="dev").lower()
     selected_tts = ENV_TTS_MAP.get(env, "aws")
@@ -85,10 +94,10 @@ async def get_tts() -> Optional[object]:
         "aws": AWSStrategy(),
         "google": GoogleStrategy(),
         "deepgram": DeepgramStrategy(),
-        "elevenlabs":ElevenLabsStrategy()
+        "cartesia":CartesiaStrategy(),
+        "azure":AzureStrategy()
     }
 
-    # Try selected strategy
     strategy = strategies.get(selected_tts)
     if not strategy:
         logger.error(f"No strategy found for TTS: {selected_tts}")
@@ -100,7 +109,6 @@ async def get_tts() -> Optional[object]:
         logger.info(f"Successfully instantiated TTS: {selected_tts}")
         return tts
 
-    # Fallback to aws
     if selected_tts != "aws":
         logger.warning(f"Selected TTS {selected_tts} failed, falling back to aws")
         fallback_strategy = strategies["aws"]
@@ -111,5 +119,4 @@ async def get_tts() -> Optional[object]:
 
     logger.error("No valid TTS configuration found")
     raise ValueError("No valid TTS configuration found")
-
 

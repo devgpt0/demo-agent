@@ -11,11 +11,11 @@ logger = get_logger("STT-FACTORY")
 
 # Environment to STT mapping
 ENV_STT_MAP = {
-    "prod": "deepgram-3",
-    "test": "deepgram-3",
-    "dev": "deepgram-2",
-    "client": "deepgram-3",
-    "local": "deepgram-3"
+    "prod": "azure",
+    "test": "azure",
+    "dev": "azure",
+    "client": "azure",
+    "local": "azure"
 }
 
 class STTStrategy(ABC):
@@ -85,6 +85,16 @@ class Deepgram2Strategy(STTStrategy):
         logger.debug("Instantiating deepgram-2 STT")
         return deepgram.STT(api_key=api_key, **params)
 
+class AzureStrategy(STTStrategy):
+    async def create(self)->Optional[object]:
+        speech_key=get_config("AZURE_SPEECH_API_KEY")
+        speech_region=get_config("AZURE_SPEECH_REGION")
+        if not (speech_key and speech_key):
+            logger.error("Missing speech_key and speech_region in Azure")
+            return None
+        logger.debug("Instantiating azure STT")
+        return azure.STT(speech_key=speech_key,speech_region=speech_region)
+    
 async def get_stt() -> Optional[object]:
     env = get_env_var("ENV", default="dev").lower()
     selected_stt = ENV_STT_MAP.get(env, "deepgram-3")
@@ -94,10 +104,10 @@ async def get_stt() -> Optional[object]:
         "deepgram-3": Deepgram3Strategy(),
         "google": GoogleStrategy(),
         "openai": OpenAIStrategy(),
-        "deepgram-2": Deepgram2Strategy()
+        "deepgram-2": Deepgram2Strategy(),
+        "azure":AzureStrategy()
     }
 
-    # Try selected strategy
     strategy = strategies.get(selected_stt)
     if not strategy:
         logger.error(f"No strategy found for STT: {selected_stt}")
@@ -109,7 +119,6 @@ async def get_stt() -> Optional[object]:
         logger.info(f"Successfully instantiated STT: {selected_stt}")
         return stt
 
-    # Fallback to deepgram-3
     if selected_stt != "deepgram-3":
         logger.warning(f"Selected STT {selected_stt} failed, falling back to deepgram-3")
         fallback_strategy = strategies["deepgram-3"]
